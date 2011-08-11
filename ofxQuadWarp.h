@@ -21,10 +21,11 @@ public:
     ~ofxQuadWarp();
     
     bool bInvert;//hack to invert
-    void setSourceRect  ( const ofRectangle& rect , bool bInvert = false);
-    void update         ();
-    void update         ( ofPoint* srcPoints, ofPoint* dstPoints );
-    void reset          ();
+    void setSourceRect      ( const ofRectangle& rect , bool bInvert = false);
+    ofMatrix4x4 getMatrix   ();
+    ofMatrix4x4 getMatrix   ( ofPoint* srcPoints, ofPoint* dstPoints );
+    void update             ();
+    void reset              ();
     
     void setCorners                     ( ofPoint* corners );
     void setCorner                      ( ofPoint p, int cornerIndex );
@@ -38,14 +39,10 @@ public:
     void toggleShow     ();
     void draw           ();
     
-    float* getMatrix    ();
-    
     void onMouseDragged ( ofMouseEventArgs &mouseArgs );
     
-    float matrix[ 16 ];
-    
-	ofPoint		srcPoints[ 4 ];
-	ofPoint		dstPoints[ 4 ];
+	ofPoint srcPoints[ 4 ];
+	ofPoint	dstPoints[ 4 ];
     
 	ofxMSAInteractiveObject		anchors[ 4 ];
 	int							anchorSize;

@@ -10,14 +10,6 @@
 
 ofxQuadWarp :: ofxQuadWarp ()
 {
-	for( int i=0; i<16; i++ )       // create identity matrix.
-    {
-		if( i % 5 != 0 )
-            matrix[ i ] = 0.0;
-		else 
-            matrix[ i ] = 1.0;
-	}
-    
     anchorSize = 10;
     
     bShow = true;
@@ -43,17 +35,12 @@ void ofxQuadWarp :: setSourceRect ( const ofRectangle& r , bool _bInvert)
 	srcPoints[ 3 ].set( r.x,  r.y + r.height );
 }
 
-float* ofxQuadWarp :: getMatrix ()
+ofMatrix4x4 ofxQuadWarp :: getMatrix ()
 {
-    return &matrix[ 0 ];
+    return getMatrix( &srcPoints[ 0 ], &dstPoints[ 0 ] );
 }
 
-void ofxQuadWarp :: update ()
-{
-    update( &srcPoints[ 0 ], &dstPoints[ 0 ] );
-}
-
-void ofxQuadWarp :: update ( ofPoint* srcPoints, ofPoint* dstPoints )
+ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
 {
 	//we need our points as opencv points
 	//be nice to do this without opencv?
@@ -126,17 +113,25 @@ void ofxQuadWarp :: update ( ofPoint* srcPoints, ofPoint* dstPoints )
 	//       [2][5][ ][9]
 	//       
     
-	matrix[ 0 ]     = mat[ 0 ];
-	matrix[ 4 ]     = mat[ 1 ];
-	matrix[ 12 ]	= mat[ 2 ];
+    ofMatrix4x4 matrixTemp;
+	matrixTemp.getPtr()[ 0 ]    = mat[ 0 ];
+	matrixTemp.getPtr()[ 4 ]    = mat[ 1 ];
+	matrixTemp.getPtr()[ 12 ]	= mat[ 2 ];
 	
-	matrix[ 1 ]     = mat[ 3 ];
-	matrix[ 5 ]     = mat[ 4 ];
-	matrix[ 13 ]	= mat[ 5 ];	
+	matrixTemp.getPtr()[ 1 ]    = mat[ 3 ];
+	matrixTemp.getPtr()[ 5 ]    = mat[ 4 ];
+	matrixTemp.getPtr()[ 13 ]   = mat[ 5 ];	
 	
-	matrix[ 3 ]     = mat[ 6 ];
-	matrix[ 7 ]     = mat[ 7 ];
-	matrix[ 15 ]    = mat[ 8 ];
+	matrixTemp.getPtr()[ 3 ]    = mat[ 6 ];
+	matrixTemp.getPtr()[ 7 ]    = mat[ 7 ];
+	matrixTemp.getPtr()[ 15 ]   = mat[ 8 ];
+
+    return matrixTemp;
+}
+
+void ofxQuadWarp :: update ()
+{
+    //
 }
 
 void ofxQuadWarp :: reset()
@@ -157,8 +152,6 @@ void ofxQuadWarp :: reset()
         );
 		anchors[ i ].enableMouseEvents();
 	}
-    
-    update();
 }
 
 void ofxQuadWarp :: onMouseDragged( ofMouseEventArgs& mouseArgs )
@@ -177,8 +170,6 @@ void ofxQuadWarp :: onMouseDragged( ofMouseEventArgs& mouseArgs )
             );
 		}
 	}
-    
-    update();
 }
 
 //----------------------------------------------------- corners.

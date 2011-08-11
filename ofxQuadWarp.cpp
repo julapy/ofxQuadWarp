@@ -181,6 +181,43 @@ void ofxQuadWarp :: onMouseDragged( ofMouseEventArgs& mouseArgs )
     update();
 }
 
+//----------------------------------------------------- corners.
+void ofxQuadWarp :: setCorners ( ofPoint* corners )
+{
+    setTopLeftCornerPosition( corners[ 0 ] );
+    setTopRightCornerPosition( corners[ 1 ] );
+    setBottomRightCornerPosition( corners[ 2 ] );
+    setBottomLeftCornerPosition( corners[ 3 ] );
+}
+
+void ofxQuadWarp :: setCorner( ofPoint p, int cornerIndex )
+{
+    cornerIndex = ofClamp( cornerIndex, 0, 3 );
+    dstPoints[ cornerIndex ] = p;
+    anchors[ cornerIndex ].setPos( p.x - anchorSize * 0.5, p.y - anchorSize * 0.5 );
+}
+
+void ofxQuadWarp :: setTopLeftCornerPosition ( ofPoint p )
+{
+    setCorner( p, 0 );
+}
+
+void ofxQuadWarp :: setTopRightCornerPosition ( ofPoint p )
+{
+    setCorner( p, 1 );
+}
+
+void ofxQuadWarp :: setBottomRightCornerPosition ( ofPoint p )
+{
+    setCorner( p, 2 );
+}
+
+void ofxQuadWarp :: setBottomLeftCornerPosition ( ofPoint p )
+{
+    setCorner( p, 3 );
+}
+
+//----------------------------------------------------- show / hide.
 void ofxQuadWarp :: show ()
 {
     if( bShow )

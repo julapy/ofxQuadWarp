@@ -25,6 +25,13 @@ public:
     void update         ();
     void update         ( ofPoint* srcPoints, ofPoint* dstPoints );
     void reset          ();
+    
+    void setCorners                     ( ofPoint* corners );
+    void setCorner                      ( ofPoint p, int cornerIndex );
+    void setTopLeftCornerPosition       ( ofPoint p );
+    void setTopRightCornerPosition      ( ofPoint p );
+    void setBottomRightCornerPosition   ( ofPoint p );
+    void setBottomLeftCornerPosition    ( ofPoint p );
 
     void show           ();
     void hide           ();

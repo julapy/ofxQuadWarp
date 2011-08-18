@@ -26,9 +26,8 @@ ofxQuadWarp :: ~ofxQuadWarp ()
         ofRemoveListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
 }
 
-void ofxQuadWarp :: setSourceRect ( const ofRectangle& r , bool _bInvert)
+void ofxQuadWarp :: setSourceRect ( const ofRectangle& r )
 {
-    bInvert = _bInvert;
 	srcPoints[ 0 ].set( r.x,  r.y );
 	srcPoints[ 1 ].set( r.x + r.width, r.y );
 	srcPoints[ 2 ].set( r.x + r.width, r.y + r.height );
@@ -38,6 +37,11 @@ void ofxQuadWarp :: setSourceRect ( const ofRectangle& r , bool _bInvert)
 ofMatrix4x4 ofxQuadWarp :: getMatrix ()
 {
     return getMatrix( &srcPoints[ 0 ], &dstPoints[ 0 ] );
+}
+
+ofMatrix4x4 ofxQuadWarp :: getMatrixInverse ()
+{
+    return getMatrix( &dstPoints[ 0 ], &srcPoints[ 0 ] );
 }
 
 ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
@@ -92,7 +96,7 @@ ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
 	//figure out the warping!
 	//warning - older versions of openCV had a bug
 	//in this function.
-	bInvert ? cvFindHomography(dst_mat, src_mat, translate) : cvFindHomography(src_mat, dst_mat, translate);//hack to invert
+	cvFindHomography( src_mat, dst_mat, translate );
     
 	//get the matrix as a list of floats
 	float *mat = translate->data.fl;

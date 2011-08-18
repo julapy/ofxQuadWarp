@@ -20,12 +20,13 @@ public:
      ofxQuadWarp();
     ~ofxQuadWarp();
     
-    bool bInvert;//hack to invert
-    void setSourceRect      ( const ofRectangle& rect , bool bInvert = false);
-    ofMatrix4x4 getMatrix   ();
-    ofMatrix4x4 getMatrix   ( ofPoint* srcPoints, ofPoint* dstPoints );
+    void setSourceRect      ( const ofRectangle& rect );
     void update             ();
     void reset              ();
+    
+    ofMatrix4x4 getMatrix        ();
+    ofMatrix4x4 getMatrixInverse ();
+    ofMatrix4x4 getMatrix        ( ofPoint* srcPoints, ofPoint* dstPoints );
     
     void setCorners                     ( ofPoint* corners );
     void setCorner                      ( ofPoint p, int cornerIndex );

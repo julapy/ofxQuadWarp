@@ -23,7 +23,16 @@ ofxQuadWarp :: ofxQuadWarp ()
 ofxQuadWarp :: ~ofxQuadWarp ()
 {
     if( bShow )
-        ofRemoveListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+    {
+        try 
+        {
+            ofRemoveListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+        }
+        catch( Poco::SystemException ) 
+        {
+            return; // we're leaving anyways so no need to delete
+        }
+    }
 }
 
 void ofxQuadWarp :: setSourceRect ( const ofRectangle& r )

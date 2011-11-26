@@ -138,6 +138,10 @@ ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
 	matrixTemp.getPtr()[ 3 ]    = mat[ 6 ];
 	matrixTemp.getPtr()[ 7 ]    = mat[ 7 ];
 	matrixTemp.getPtr()[ 15 ]   = mat[ 8 ];
+    
+    cvReleaseMat( &translate );
+    cvReleaseMat( &src_mat );
+    cvReleaseMat( &dst_mat );
 
     return matrixTemp;
 }

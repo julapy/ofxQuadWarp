@@ -17,7 +17,7 @@ ofxQuadWarp :: ofxQuadWarp ()
     setSourceRect( ofRectangle( 0, 0, ofGetWidth(), ofGetHeight() ) );
     reset();
     
-    ofAddListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+    ofAddListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
 }
 
 ofxQuadWarp :: ~ofxQuadWarp ()
@@ -26,7 +26,7 @@ ofxQuadWarp :: ~ofxQuadWarp ()
     {
         try 
         {
-            ofRemoveListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+            ofRemoveListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
         }
         catch( Poco::SystemException ) 
         {
@@ -231,7 +231,7 @@ void ofxQuadWarp :: show ()
     if( bShow )
         return;
     
-    ofAddListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+    ofAddListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
     
     bShow = true;
 }
@@ -241,7 +241,7 @@ void ofxQuadWarp :: hide ()
     if( !bShow )
         return;
     
-    ofRemoveListener( ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+    ofRemoveListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
     
     bShow = false;
 }

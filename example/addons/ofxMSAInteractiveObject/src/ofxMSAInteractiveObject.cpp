@@ -185,7 +185,7 @@ void ofxMSAInteractiveObject::_exit(ofEventArgs &e) {
 void ofxMSAInteractiveObject::_mouseMoved(ofMouseEventArgs &e) {
 	int x = e.x;
 	int y = e.y;
-	int button = e.button;
+//	int button = e.button;
 	if(verbose) printf("ofxMSAInteractiveObject::_mouseMoved(x: %i, y: %i)\n", x, y);
 	if(!enabled) return;
 	

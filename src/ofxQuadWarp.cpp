@@ -14,9 +14,6 @@ ofxQuadWarp :: ofxQuadWarp ()
     
     bShow = true;
     
-    setSourceRect( ofRectangle( 0, 0, ofGetWidth(), ofGetHeight() ) );
-    reset();
-    
     ofAddListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
 }
 

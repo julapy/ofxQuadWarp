@@ -1,57 +1,105 @@
 //
 //  ofxQuadWarp.cpp
-//  emptyExample
-//
 //  Created by lukasz karluk on 19/06/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 
 #include "ofxQuadWarp.h"
 
-ofxQuadWarp :: ofxQuadWarp ()
-{
+ofxQuadWarp::ofxQuadWarp() {
     anchorSize = 10;
+    anchorSizeHalf = anchorSize * 0.5;
+    selectedCornerIndex = -1;
     
-    bShow = true;
+    bEnabled = false;
+    bShow = false;
     
-    ofAddListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
+    srcPoints.resize(4);
+    dstPoints.resize(4);
 }
 
-ofxQuadWarp :: ~ofxQuadWarp ()
-{
-    if( bShow )
-    {
-        try 
-        {
-            ofRemoveListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
-        }
-        catch( Poco::SystemException ) 
-        {
-            return; // we're leaving anyways so no need to delete
-        }
+ofxQuadWarp::~ofxQuadWarp() {
+    disable();
+}
+
+//----------------------------------------------------- setup.
+void ofxQuadWarp::setup() {
+    enable();
+    show();
+}
+
+//----------------------------------------------------- enable / disable.
+void ofxQuadWarp::enable() {
+    if(bEnabled) {
+        return;
+    }
+    ofAddListener(ofEvents.mousePressed, this, &ofxQuadWarp :: onMousePressed);
+    ofAddListener(ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged);
+    ofAddListener(ofEvents.mouseReleased, this, &ofxQuadWarp :: onMouseReleased);
+}
+
+void ofxQuadWarp::disable() {
+    if(!bEnabled) {
+        return;
+    }
+    try {
+        ofRemoveListener(ofEvents.mousePressed, this, &ofxQuadWarp :: onMousePressed);
+        ofRemoveListener(ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged);
+        ofRemoveListener(ofEvents.mouseReleased, this, &ofxQuadWarp :: onMouseReleased);
+    }
+    catch(Poco::SystemException) {
+        return; // we're leaving anyways so no need to delete
     }
 }
 
-void ofxQuadWarp :: setSourceRect ( const ofRectangle& r )
-{
-	srcPoints[ 0 ].set( r.x,  r.y );
-	srcPoints[ 1 ].set( r.x + r.width, r.y );
-	srcPoints[ 2 ].set( r.x + r.width, r.y + r.height );
-	srcPoints[ 3 ].set( r.x,  r.y + r.height );
+//----------------------------------------------------- source / target points.
+void ofxQuadWarp::setSourceRect(ofRectangle r) {
+    srcPoints.resize(4);
+	srcPoints[0].set(r.x, r.y);
+	srcPoints[1].set(r.x + r.width, r.y);
+	srcPoints[2].set(r.x + r.width, r.y + r.height);
+	srcPoints[3].set(r.x, r.y + r.height);
 }
 
-ofMatrix4x4 ofxQuadWarp :: getMatrix ()
-{
-    return getMatrix( &srcPoints[ 0 ], &dstPoints[ 0 ] );
+void ofxQuadWarp::setSourcePoints(vector<ofPoint> points) {
+    srcPoints = points;
+    srcPoints.resize(4);
 }
 
-ofMatrix4x4 ofxQuadWarp :: getMatrixInverse ()
-{
-    return getMatrix( &dstPoints[ 0 ], &srcPoints[ 0 ] );
+vector<ofPoint> & ofxQuadWarp::getSourcePoints() {
+    return srcPoints;
 }
 
-ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
-{
+void ofxQuadWarp::setTargetRect(ofRectangle r) {
+    dstPoints.resize(4);
+	dstPoints[0].set(r.x, r.y);
+	dstPoints[1].set(r.x + r.width, r.y);
+	dstPoints[2].set(r.x + r.width, r.y + r.height);
+	dstPoints[3].set(r.x, r.y + r.height);
+}
+
+void ofxQuadWarp::setTargetPoints(vector<ofPoint> points) {
+    dstPoints = points;
+    dstPoints.resize(4);
+}
+
+vector<ofPoint> & ofxQuadWarp::getTargetPoints() {
+    return dstPoints;
+}
+
+//----------------------------------------------------- matrix.
+ofMatrix4x4 ofxQuadWarp::getMatrix() {
+    return getMatrix(srcPoints, dstPoints);
+}
+
+ofMatrix4x4 ofxQuadWarp::getMatrixInverse() {
+    return getMatrix(dstPoints, srcPoints);
+}
+
+ofMatrix4x4 ofxQuadWarp::getMatrix(vector<ofPoint> srcPoints, vector<ofPoint> dstPoints) {
+    
+    srcPoints.resize(4);
+    dstPoints.resize(4);
+    
 	//we need our points as opencv points
 	//be nice to do this without opencv?
 	CvPoint2D32f cvsrc[4];
@@ -59,23 +107,23 @@ ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
     
 	//we set the warp coordinates
 	//source coordinates as the dimensions of our window
-	cvsrc[ 0 ].x = srcPoints[ 0 ].x;
-	cvsrc[ 0 ].y = srcPoints[ 0 ].y;
-	cvsrc[ 1 ].x = srcPoints[ 1 ].x;
-	cvsrc[ 1 ].y = srcPoints[ 1 ].y;
-	cvsrc[ 2 ].x = srcPoints[ 2 ].x;
-	cvsrc[ 2 ].y = srcPoints[ 2 ].y;
-	cvsrc[ 3 ].x = srcPoints[ 3 ].x;
-	cvsrc[ 3 ].y = srcPoints[ 3 ].y;
+	cvsrc[0].x = srcPoints[0].x;
+	cvsrc[0].y = srcPoints[0].y;
+	cvsrc[1].x = srcPoints[1].x;
+	cvsrc[1].y = srcPoints[1].y;
+	cvsrc[2].x = srcPoints[2].x;
+	cvsrc[2].y = srcPoints[2].y;
+	cvsrc[3].x = srcPoints[3].x;
+	cvsrc[3].y = srcPoints[3].y;
     
-	cvdst[ 0 ].x = dstPoints[ 0 ].x;
-	cvdst[ 0 ].y = dstPoints[ 0 ].y;
-	cvdst[ 1 ].x = dstPoints[ 1 ].x;
-	cvdst[ 1 ].y = dstPoints[ 1 ].y;
-	cvdst[ 2 ].x = dstPoints[ 2 ].x;
-	cvdst[ 2 ].y = dstPoints[ 2 ].y;
-	cvdst[ 3 ].x = dstPoints[ 3 ].x;
-	cvdst[ 3 ].y = dstPoints[ 3 ].y;
+	cvdst[0].x = dstPoints[0].x;
+	cvdst[0].y = dstPoints[0].y;
+	cvdst[1].x = dstPoints[1].x;
+	cvdst[1].y = dstPoints[1].y;
+	cvdst[2].x = dstPoints[2].x;
+	cvdst[2].y = dstPoints[2].y;
+	cvdst[3].x = dstPoints[3].x;
+	cvdst[3].y = dstPoints[3].y;
     
 	//we create a matrix that will store the results
 	//from openCV - this is a 3x3 2D matrix that is
@@ -92,17 +140,17 @@ ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
 	//to store our points  - the nice thing with this 
 	//method is you can give it more than four points!
 	
-	CvMat* src_mat = cvCreateMat( 4, 2, CV_32FC1 );
-	CvMat* dst_mat = cvCreateMat( 4, 2, CV_32FC1 );
+	CvMat* src_mat = cvCreateMat(4, 2, CV_32FC1);
+	CvMat* dst_mat = cvCreateMat(4, 2, CV_32FC1);
     
 	//copy our points into the matrixes
-	cvSetData( src_mat, cvsrc, sizeof(CvPoint2D32f));
-	cvSetData( dst_mat, cvdst, sizeof(CvPoint2D32f));
+	cvSetData(src_mat, cvsrc, sizeof(CvPoint2D32f));
+	cvSetData(dst_mat, cvdst, sizeof(CvPoint2D32f));
     
 	//figure out the warping!
 	//warning - older versions of openCV had a bug
 	//in this function.
-	cvFindHomography( src_mat, dst_mat, translate );
+	cvFindHomography(src_mat, dst_mat, translate);
     
 	//get the matrix as a list of floats
 	float *mat = translate->data.fl;
@@ -124,148 +172,138 @@ ofMatrix4x4 ofxQuadWarp :: getMatrix ( ofPoint* srcPoints, ofPoint* dstPoints )
 	//       
     
     ofMatrix4x4 matrixTemp;
-	matrixTemp.getPtr()[ 0 ]    = mat[ 0 ];
-	matrixTemp.getPtr()[ 4 ]    = mat[ 1 ];
-	matrixTemp.getPtr()[ 12 ]	= mat[ 2 ];
+	matrixTemp.getPtr()[0]  = mat[0];
+	matrixTemp.getPtr()[4]  = mat[1];
+	matrixTemp.getPtr()[12] = mat[2];
 	
-	matrixTemp.getPtr()[ 1 ]    = mat[ 3 ];
-	matrixTemp.getPtr()[ 5 ]    = mat[ 4 ];
-	matrixTemp.getPtr()[ 13 ]   = mat[ 5 ];	
+	matrixTemp.getPtr()[1]  = mat[3];
+	matrixTemp.getPtr()[5]  = mat[4];
+	matrixTemp.getPtr()[13] = mat[5];	
 	
-	matrixTemp.getPtr()[ 3 ]    = mat[ 6 ];
-	matrixTemp.getPtr()[ 7 ]    = mat[ 7 ];
-	matrixTemp.getPtr()[ 15 ]   = mat[ 8 ];
+	matrixTemp.getPtr()[3]  = mat[6];
+	matrixTemp.getPtr()[7]  = mat[7];
+	matrixTemp.getPtr()[15] = mat[8];
     
-    cvReleaseMat( &translate );
-    cvReleaseMat( &src_mat );
-    cvReleaseMat( &dst_mat );
+    cvReleaseMat(&translate);
+    cvReleaseMat(&src_mat);
+    cvReleaseMat(&dst_mat);
 
     return matrixTemp;
 }
 
-void ofxQuadWarp :: update ()
-{
+void ofxQuadWarp::update() {
     //
 }
 
-void ofxQuadWarp :: reset()
-{
-	dstPoints[ 0 ] = srcPoints[ 0 ];
-	dstPoints[ 1 ] = srcPoints[ 1 ];
-	dstPoints[ 2 ] = srcPoints[ 2 ];
-	dstPoints[ 3 ] = srcPoints[ 3 ];
-    
-	for( int i=0; i<4; i++ )
-	{
-		anchors[ i ].setPosAndSize
-		(
-            dstPoints[ i ].x - anchorSize * 0.5,
-            dstPoints[ i ].y - anchorSize * 0.5,
-            anchorSize,
-            anchorSize
-        );
-		anchors[ i ].enableMouseEvents();
-	}
+void ofxQuadWarp::reset() {
+    dstPoints[0] = srcPoints[0];
+    dstPoints[1] = srcPoints[1];
+    dstPoints[2] = srcPoints[2];
+    dstPoints[3] = srcPoints[3];
 }
 
-void ofxQuadWarp :: onMouseDragged( ofMouseEventArgs& mouseArgs )
-{
-	for( int i=0; i<4; i++ )
-	{
-		if( anchors[ i ].isMouseDown() )
-		{
-			dstPoints[ i ].x = mouseArgs.x;
-            dstPoints[ i ].y = mouseArgs.y;
-            
-			anchors[ i ].setPos
-			(
-                mouseArgs.x - anchorSize * 0.5,
-                mouseArgs.y - anchorSize * 0.5
-            );
+//----------------------------------------------------- interaction.
+void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
+    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+	for(int i=0; i<4; i++) {
+		if(mousePoint.distance(dstPoints[i]) <= anchorSizeHalf) {
+			dstPoints[i] = mousePoint;
+            selectedCornerIndex = i;
 		}
 	}
 }
 
+void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
+    if(selectedCornerIndex < 0) {
+        return;
+    }
+	dstPoints[selectedCornerIndex] = ofPoint (mouseArgs.x, mouseArgs.y);
+}
+
+void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
+    if(selectedCornerIndex < 0) {
+        return;
+    }
+	dstPoints[selectedCornerIndex] = ofPoint (mouseArgs.x, mouseArgs.y);
+    selectedCornerIndex = -1;
+}
+
 //----------------------------------------------------- corners.
-void ofxQuadWarp :: setCorners ( ofPoint* corners )
-{
-    setTopLeftCornerPosition( corners[ 0 ] );
-    setTopRightCornerPosition( corners[ 1 ] );
-    setBottomRightCornerPosition( corners[ 2 ] );
-    setBottomLeftCornerPosition( corners[ 3 ] );
+void ofxQuadWarp::setCorners(vector<ofPoint> corners) {
+    corners.resize(4);
+    setTopLeftCornerPosition(corners[0]);
+    setTopRightCornerPosition(corners[1]);
+    setBottomRightCornerPosition(corners[2]);
+    setBottomLeftCornerPosition(corners[3]);
 }
 
-void ofxQuadWarp :: setCorner( ofPoint p, int cornerIndex )
-{
-    cornerIndex = ofClamp( cornerIndex, 0, 3 );
-    dstPoints[ cornerIndex ] = p;
-    anchors[ cornerIndex ].setPos( p.x - anchorSize * 0.5, p.y - anchorSize * 0.5 );
+void ofxQuadWarp::setCorner(ofPoint p, int cornerIndex) {
+    cornerIndex = ofClamp(cornerIndex, 0, 3);
+    dstPoints[cornerIndex] = p;
 }
 
-void ofxQuadWarp :: setTopLeftCornerPosition ( ofPoint p )
-{
-    setCorner( p, 0 );
+void ofxQuadWarp::setTopLeftCornerPosition(ofPoint p) {
+    setCorner(p, 0);
 }
 
-void ofxQuadWarp :: setTopRightCornerPosition ( ofPoint p )
-{
-    setCorner( p, 1 );
+void ofxQuadWarp::setTopRightCornerPosition(ofPoint p) {
+    setCorner(p, 1);
 }
 
-void ofxQuadWarp :: setBottomRightCornerPosition ( ofPoint p )
-{
-    setCorner( p, 2 );
+void ofxQuadWarp::setBottomRightCornerPosition(ofPoint p) {
+    setCorner(p, 2);
 }
 
-void ofxQuadWarp :: setBottomLeftCornerPosition ( ofPoint p )
-{
-    setCorner( p, 3 );
+void ofxQuadWarp::setBottomLeftCornerPosition(ofPoint p) {
+    setCorner(p, 3);
 }
 
 //----------------------------------------------------- show / hide.
-void ofxQuadWarp :: show ()
-{
-    if( bShow )
+void ofxQuadWarp::show() {
+    if(bShow) {
         return;
-    
-    ofAddListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
-    
-    bShow = true;
+    }
+    toggleShow();
 }
 
-void ofxQuadWarp :: hide ()
-{
-    if( !bShow )
+void ofxQuadWarp::hide() {
+    if(!bShow) {
         return;
-    
-    ofRemoveListener( ofEvents().mouseDragged, this, &ofxQuadWarp :: onMouseDragged );
-    
-    bShow = false;
+    }
+    toggleShow();
 }
 
-void ofxQuadWarp :: toggleShow ()
-{
-    if( bShow )
-        hide();
-    else
-        show();
+void ofxQuadWarp::toggleShow() {
+    bShow = !bShow;
 }
 
-void ofxQuadWarp :: draw ()
-{
-    if( !bShow )
+//----------------------------------------------------- show / hide.
+void ofxQuadWarp::draw() {
+    if(!bShow) {
         return;
+    }
     
-    ofFill();
-    
-	for( int i=0; i<4; i++ )
-	{
-        int s = anchorSize;
-        ofRect( dstPoints[ i ].x - s * 0.5, dstPoints[ i ].y - s * 0.5, s, s );
+    drawCorners();
+    drawQuadOutline();
+}
+
+void ofxQuadWarp::drawCorners() {
+    if(!bShow) {
+        return;
+    }
+
+	for(int i=0; i<dstPoints.size(); i++) {
+        ofRect(dstPoints[i].x - anchorSizeHalf, dstPoints[i].y - anchorSizeHalf, anchorSize, anchorSize);
 	}
-	
-	ofLine( dstPoints[ 0 ].x, dstPoints[ 0 ].y, dstPoints[ 1 ].x, dstPoints[ 1 ].y );
-	ofLine( dstPoints[ 1 ].x, dstPoints[ 1 ].y, dstPoints[ 2 ].x, dstPoints[ 2 ].y );
-	ofLine( dstPoints[ 2 ].x, dstPoints[ 2 ].y, dstPoints[ 3 ].x, dstPoints[ 3 ].y );
-	ofLine( dstPoints[ 3 ].x, dstPoints[ 3 ].y, dstPoints[ 0 ].x, dstPoints[ 0 ].y );
+}
+
+void ofxQuadWarp::drawQuadOutline() {
+    if(!bShow) {
+        return;
+    }
+    
+    for(int i=0; i<dstPoints.size(); i++) {
+        int j = (i+1) % dstPoints.size();
+        ofLine(dstPoints[i].x, dstPoints[i].y, dstPoints[j].x, dstPoints[j].y);
+    }
 }

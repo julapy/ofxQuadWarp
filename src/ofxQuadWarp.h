@@ -1,9 +1,6 @@
 //
 //  ofxQuadWarp.h
-//  emptyExample
-//
 //  Created by lukasz karluk on 19/06/11.
-//  Copyright 2011 __MyCompanyName__. All rights reserved.
 //
 //  nay added hack to invert on 2011/06/21
 //
@@ -11,7 +8,6 @@
 
 #include "ofMain.h"
 #include "ofxOpenCv.h"
-#include "ofxMSAInteractiveObject.h"
 
 class ofxQuadWarp 
 {
@@ -20,33 +16,53 @@ public:
      ofxQuadWarp();
     ~ofxQuadWarp();
     
-    void setSourceRect      ( const ofRectangle& rect );
-    void update             ();
-    void reset              ();
+    void setup();
     
-    ofMatrix4x4 getMatrix        ();
-    ofMatrix4x4 getMatrixInverse ();
-    ofMatrix4x4 getMatrix        ( ofPoint* srcPoints, ofPoint* dstPoints );
+    void setSourceRect(ofRectangle rect);
+    void setSourcePoints(vector<ofPoint> points);
+    vector<ofPoint> & getSourcePoints();
+    void setTargetRect(ofRectangle rect);
+    void setTargetPoints(vector<ofPoint> points);
+    vector<ofPoint> & getTargetPoints();
     
-    void setCorners                     ( ofPoint* corners );
-    void setCorner                      ( ofPoint p, int cornerIndex );
-    void setTopLeftCornerPosition       ( ofPoint p );
-    void setTopRightCornerPosition      ( ofPoint p );
-    void setBottomRightCornerPosition   ( ofPoint p );
-    void setBottomLeftCornerPosition    ( ofPoint p );
+    void enable();
+    void disable();
+    
+    void update();
+    void reset();
+    
+    ofMatrix4x4 getMatrix();
+    ofMatrix4x4 getMatrixInverse();
+    ofMatrix4x4 getMatrix(vector<ofPoint> srcPoints, vector<ofPoint> dstPoints);
+    
+    void setCorners(vector<ofPoint> corners);
+    void setCorner(ofPoint p, int cornerIndex);
+    void setTopLeftCornerPosition(ofPoint p);
+    void setTopRightCornerPosition(ofPoint p);
+    void setBottomRightCornerPosition(ofPoint p);
+    void setBottomLeftCornerPosition(ofPoint p);
 
-    void show           ();
-    void hide           ();
-    void toggleShow     ();
-    void draw           ();
+    void show();
+    void hide();
+    void toggleShow();
+
+    void draw();
+    void drawCorners();
+    void drawQuadOutline();
     
-    void onMouseDragged ( ofMouseEventArgs &mouseArgs );
+protected:
     
-	ofPoint srcPoints[ 4 ];
-	ofPoint	dstPoints[ 4 ];
+    void onMousePressed(ofMouseEventArgs& mouseArgs);
+    void onMouseDragged(ofMouseEventArgs &mouseArgs);
+    void onMouseReleased(ofMouseEventArgs& mouseArgs);
     
-	ofxMSAInteractiveObject		anchors[ 4 ];
-	int							anchorSize;
+	vector<ofPoint> srcPoints;
+	vector<ofPoint>	dstPoints;
     
+	float anchorSize;
+    float anchorSizeHalf;
+    int selectedCornerIndex;
+    
+    bool bEnabled;
     bool bShow;
 };

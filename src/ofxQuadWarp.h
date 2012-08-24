@@ -18,6 +18,9 @@ public:
     
     void setup();
     
+    void setPosition(float x, float y);
+    void setAnchorSize(float value);
+    
     void setSourceRect(ofRectangle rect);
     void setSourcePoints(vector<ofPoint> points);
     vector<ofPoint> & getSourcePoints();
@@ -41,6 +44,7 @@ public:
     void setTopRightCornerPosition(ofPoint p);
     void setBottomRightCornerPosition(ofPoint p);
     void setBottomLeftCornerPosition(ofPoint p);
+    bool isCornerSelected(int cornerIndex) { return selectedCornerIndex == cornerIndex; }
 
     void show();
     void hide();
@@ -50,14 +54,16 @@ public:
     void drawCorners();
     void drawQuadOutline();
     
+	vector<ofPoint> srcPoints;
+	vector<ofPoint>	dstPoints;
+    
 protected:
     
     void onMousePressed(ofMouseEventArgs& mouseArgs);
     void onMouseDragged(ofMouseEventArgs &mouseArgs);
     void onMouseReleased(ofMouseEventArgs& mouseArgs);
     
-	vector<ofPoint> srcPoints;
-	vector<ofPoint>	dstPoints;
+    ofPoint position;
     
 	float anchorSize;
     float anchorSizeHalf;

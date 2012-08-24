@@ -27,14 +27,25 @@ void ofxQuadWarp::setup() {
     show();
 }
 
+//----------------------------------------------------- setters.
+void ofxQuadWarp::setPosition(float x, float y) {
+    position.x = x;
+    position.y = y;
+}
+
+void ofxQuadWarp::setAnchorSize(float value) {
+    anchorSize = value;
+    anchorSizeHalf = anchorSize * 0.5;
+}
+
 //----------------------------------------------------- enable / disable.
 void ofxQuadWarp::enable() {
     if(bEnabled) {
         return;
     }
-    ofAddListener(ofEvents.mousePressed, this, &ofxQuadWarp :: onMousePressed);
-    ofAddListener(ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged);
-    ofAddListener(ofEvents.mouseReleased, this, &ofxQuadWarp :: onMouseReleased);
+    ofAddListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
+    ofAddListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
+    ofAddListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
 }
 
 void ofxQuadWarp::disable() {
@@ -42,9 +53,9 @@ void ofxQuadWarp::disable() {
         return;
     }
     try {
-        ofRemoveListener(ofEvents.mousePressed, this, &ofxQuadWarp :: onMousePressed);
-        ofRemoveListener(ofEvents.mouseDragged, this, &ofxQuadWarp :: onMouseDragged);
-        ofRemoveListener(ofEvents.mouseReleased, this, &ofxQuadWarp :: onMouseReleased);
+        ofRemoveListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
+        ofRemoveListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
+        ofRemoveListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
     }
     catch(Poco::SystemException) {
         return; // we're leaving anyways so no need to delete
@@ -205,7 +216,8 @@ void ofxQuadWarp::reset() {
 //----------------------------------------------------- interaction.
 void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
-	for(int i=0; i<4; i++) {
+    mousePoint -= position;
+	for(int i=0; i<dstPoints.size(); i++) {
 		if(mousePoint.distance(dstPoints[i]) <= anchorSizeHalf) {
 			dstPoints[i] = mousePoint;
             selectedCornerIndex = i;
@@ -217,14 +229,18 @@ void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
     if(selectedCornerIndex < 0) {
         return;
     }
-	dstPoints[selectedCornerIndex] = ofPoint (mouseArgs.x, mouseArgs.y);
+    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    mousePoint -= position;
+	dstPoints[selectedCornerIndex] = mousePoint;
 }
 
 void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
     if(selectedCornerIndex < 0) {
         return;
     }
-	dstPoints[selectedCornerIndex] = ofPoint (mouseArgs.x, mouseArgs.y);
+    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    mousePoint -= position;    
+	dstPoints[selectedCornerIndex] = mousePoint;
     selectedCornerIndex = -1;
 }
 
@@ -293,7 +309,9 @@ void ofxQuadWarp::drawCorners() {
     }
 
 	for(int i=0; i<dstPoints.size(); i++) {
-        ofRect(dstPoints[i].x - anchorSizeHalf, dstPoints[i].y - anchorSizeHalf, anchorSize, anchorSize);
+        ofRect(dstPoints[i].x + position.x - anchorSizeHalf, 
+               dstPoints[i].y + position.y - anchorSizeHalf, 
+               anchorSize, anchorSize);
 	}
 }
 
@@ -304,6 +322,9 @@ void ofxQuadWarp::drawQuadOutline() {
     
     for(int i=0; i<dstPoints.size(); i++) {
         int j = (i+1) % dstPoints.size();
-        ofLine(dstPoints[i].x, dstPoints[i].y, dstPoints[j].x, dstPoints[j].y);
+        ofLine(dstPoints[i].x + position.x, 
+               dstPoints[i].y + position.y, 
+               dstPoints[j].x + position.x, 
+               dstPoints[j].y + position.y);
     }
 }

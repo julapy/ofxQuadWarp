@@ -203,10 +203,10 @@ void ofxQuadWarp::update() {
 }
 
 void ofxQuadWarp::reset() {
-    dstPoints[0] = srcPoints[0];
-    dstPoints[1] = srcPoints[1];
-    dstPoints[2] = srcPoints[2];
-    dstPoints[3] = srcPoints[3];
+    dstPoints[0].set(srcPoints[0]);
+    dstPoints[1].set(srcPoints[1]);
+    dstPoints[2].set(srcPoints[2]);
+    dstPoints[3].set(srcPoints[3]);
 }
 
 //----------------------------------------------------- interaction.
@@ -223,7 +223,7 @@ void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
 }
 
 void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
-    if(selectedCornerIndex < 0) {
+    if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
         return;
     }
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
@@ -232,7 +232,7 @@ void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
 }
 
 void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
-    if(selectedCornerIndex < 0) {
+    if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
         return;
     }
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);

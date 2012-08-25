@@ -12,9 +12,6 @@ ofxQuadWarp::ofxQuadWarp() {
     
     bEnabled = false;
     bShow = false;
-    
-    srcPoints.resize(4);
-    dstPoints.resize(4);
 }
 
 ofxQuadWarp::~ofxQuadWarp() {
@@ -64,7 +61,6 @@ void ofxQuadWarp::disable() {
 
 //----------------------------------------------------- source / target points.
 void ofxQuadWarp::setSourceRect(ofRectangle r) {
-    srcPoints.resize(4);
 	srcPoints[0].set(r.x, r.y);
 	srcPoints[1].set(r.x + r.width, r.y);
 	srcPoints[2].set(r.x + r.width, r.y + r.height);
@@ -72,16 +68,17 @@ void ofxQuadWarp::setSourceRect(ofRectangle r) {
 }
 
 void ofxQuadWarp::setSourcePoints(vector<ofPoint> points) {
-    srcPoints = points;
-    srcPoints.resize(4);
+    int t = MIN(4, points.size());
+    for(int i=0; i<t; i++) {
+        srcPoints[i].set(points[i]);
+    }
 }
 
-vector<ofPoint> & ofxQuadWarp::getSourcePoints() {
-    return srcPoints;
+ofPoint* ofxQuadWarp::getSourcePoints() {
+    return &srcPoints[0];
 }
 
 void ofxQuadWarp::setTargetRect(ofRectangle r) {
-    dstPoints.resize(4);
 	dstPoints[0].set(r.x, r.y);
 	dstPoints[1].set(r.x + r.width, r.y);
 	dstPoints[2].set(r.x + r.width, r.y + r.height);
@@ -89,27 +86,26 @@ void ofxQuadWarp::setTargetRect(ofRectangle r) {
 }
 
 void ofxQuadWarp::setTargetPoints(vector<ofPoint> points) {
-    dstPoints = points;
-    dstPoints.resize(4);
+    int t = MIN(4, points.size());
+    for(int i=0; i<t; i++) {
+        dstPoints[i].set(points[i]);
+    }
 }
 
-vector<ofPoint> & ofxQuadWarp::getTargetPoints() {
-    return dstPoints;
+ofPoint* ofxQuadWarp::getTargetPoints() {
+    return &dstPoints[0];
 }
 
 //----------------------------------------------------- matrix.
 ofMatrix4x4 ofxQuadWarp::getMatrix() {
-    return getMatrix(srcPoints, dstPoints);
+    return getMatrix(&srcPoints[0], &dstPoints[0]);
 }
 
 ofMatrix4x4 ofxQuadWarp::getMatrixInverse() {
-    return getMatrix(dstPoints, srcPoints);
+    return getMatrix(&dstPoints[0], &srcPoints[0]);
 }
 
-ofMatrix4x4 ofxQuadWarp::getMatrix(vector<ofPoint> srcPoints, vector<ofPoint> dstPoints) {
-    
-    srcPoints.resize(4);
-    dstPoints.resize(4);
+ofMatrix4x4 ofxQuadWarp::getMatrix(ofPoint * srcPoints, ofPoint * dstPoints) {
     
 	//we need our points as opencv points
 	//be nice to do this without opencv?
@@ -217,9 +213,10 @@ void ofxQuadWarp::reset() {
 void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
-	for(int i=0; i<dstPoints.size(); i++) {
-		if(mousePoint.distance(dstPoints[i]) <= anchorSizeHalf) {
-			dstPoints[i] = mousePoint;
+	for(int i=0; i<4; i++) {
+        ofPoint & dstPoint = dstPoints[i];
+		if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
+			dstPoint.set(mousePoint);
             selectedCornerIndex = i;
 		}
 	}
@@ -231,7 +228,7 @@ void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
     }
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
-	dstPoints[selectedCornerIndex] = mousePoint;
+	dstPoints[selectedCornerIndex].set(mousePoint);
 }
 
 void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
@@ -240,7 +237,7 @@ void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
     }
     ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;    
-	dstPoints[selectedCornerIndex] = mousePoint;
+	dstPoints[selectedCornerIndex].set(mousePoint);
     selectedCornerIndex = -1;
 }
 
@@ -255,7 +252,7 @@ void ofxQuadWarp::setCorners(vector<ofPoint> corners) {
 
 void ofxQuadWarp::setCorner(ofPoint p, int cornerIndex) {
     cornerIndex = ofClamp(cornerIndex, 0, 3);
-    dstPoints[cornerIndex] = p;
+    dstPoints[cornerIndex].set(p);
 }
 
 void ofxQuadWarp::setTopLeftCornerPosition(ofPoint p) {
@@ -308,7 +305,7 @@ void ofxQuadWarp::drawCorners() {
         return;
     }
 
-	for(int i=0; i<dstPoints.size(); i++) {
+	for(int i=0; i<4; i++) {
         ofRect(dstPoints[i].x + position.x - anchorSizeHalf, 
                dstPoints[i].y + position.y - anchorSizeHalf, 
                anchorSize, anchorSize);
@@ -320,8 +317,8 @@ void ofxQuadWarp::drawQuadOutline() {
         return;
     }
     
-    for(int i=0; i<dstPoints.size(); i++) {
-        int j = (i+1) % dstPoints.size();
+    for(int i=0; i<4; i++) {
+        int j = (i+1) % 4;
         ofLine(dstPoints[i].x + position.x, 
                dstPoints[i].y + position.y, 
                dstPoints[j].x + position.x, 

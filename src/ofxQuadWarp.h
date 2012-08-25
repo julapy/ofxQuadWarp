@@ -23,10 +23,10 @@ public:
     
     void setSourceRect(ofRectangle rect);
     void setSourcePoints(vector<ofPoint> points);
-    vector<ofPoint> & getSourcePoints();
+    ofPoint* getSourcePoints();
     void setTargetRect(ofRectangle rect);
     void setTargetPoints(vector<ofPoint> points);
-    vector<ofPoint> & getTargetPoints();
+    ofPoint* getTargetPoints();
     
     void enable();
     void disable();
@@ -36,7 +36,7 @@ public:
     
     ofMatrix4x4 getMatrix();
     ofMatrix4x4 getMatrixInverse();
-    ofMatrix4x4 getMatrix(vector<ofPoint> srcPoints, vector<ofPoint> dstPoints);
+    ofMatrix4x4 getMatrix(ofPoint * srcPoints, ofPoint * dstPoints);
     
     void setCorners(vector<ofPoint> corners);
     void setCorner(ofPoint p, int cornerIndex);
@@ -54,8 +54,8 @@ public:
     void drawCorners();
     void drawQuadOutline();
     
-	vector<ofPoint> srcPoints;
-	vector<ofPoint>	dstPoints;
+	ofPoint srcPoints[4];
+	ofPoint	dstPoints[4];
     
 protected:
     

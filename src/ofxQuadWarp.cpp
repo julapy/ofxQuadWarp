@@ -43,6 +43,7 @@ void ofxQuadWarp::enable() {
     ofAddListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
     ofAddListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
     ofAddListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
+    ofAddListener(ofEvents().keyPressed, this, &ofxQuadWarp::keyPressed);
 }
 
 void ofxQuadWarp::disable() {
@@ -53,6 +54,8 @@ void ofxQuadWarp::disable() {
         ofRemoveListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
         ofRemoveListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
         ofRemoveListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
+        ofRemoveListener(ofEvents().keyPressed, this, &ofxQuadWarp::keyPressed);
+
     }
     catch(Poco::SystemException) {
         return; // we're leaving anyways so no need to delete
@@ -211,34 +214,72 @@ void ofxQuadWarp::reset() {
 
 //----------------------------------------------------- interaction.
 void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
-    mousePoint -= position;
-	for(int i=0; i<4; i++) {
-        ofPoint & dstPoint = dstPoints[i];
-		if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
-			dstPoint.set(mousePoint);
-            selectedCornerIndex = i;
-		}
-	}
+        if(bShow){
+            ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+            mousePoint -= position;
+            for(int i=0; i<4; i++) {
+                ofPoint & dstPoint = dstPoints[i];
+                if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
+                    dstPoint.set(mousePoint);
+                    selectedCornerIndex = i;
+                }
+            }
+        }
 }
 
 void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
-    if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
-        return;
-    }
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
-    mousePoint -= position;
-	dstPoints[selectedCornerIndex].set(mousePoint);
+        if(bShow){
+            if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
+                return;
+            }
+            ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+            mousePoint -= position;
+            dstPoints[selectedCornerIndex].set(mousePoint);
+        }
 }
 
 void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
-    if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
-        return;
+    if(bShow){
+        if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
+            return;
+        }
+        ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+        mousePoint -= position;    
+        dstPoints[selectedCornerIndex].set(mousePoint);
+        //selectedCornerIndex = -1;
     }
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
-    mousePoint -= position;    
-	dstPoints[selectedCornerIndex].set(mousePoint);
-    selectedCornerIndex = -1;
+}
+
+void ofxQuadWarp::keyPressed(ofKeyEventArgs& keyArgs) {
+   
+    if(bShow){
+        if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
+            return;
+        }
+        
+        switch (keyArgs.key) {
+            case OF_KEY_LEFT:
+                dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x-1);
+                break;
+            case OF_KEY_RIGHT:
+                dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x+1);
+                break;
+            case OF_KEY_UP:
+                dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y-1);
+                break;
+            case OF_KEY_DOWN:
+                dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y+1);
+                break;
+           // case 'b':
+             //   cout<<"GOT IT"<<endl;
+             //   break;
+                
+            default:
+                break;
+        }
+        //dstPoints[selectedCornerIndex].set(dstPoints[selectedCornerIndex]+1);
+        //selectedCornerIndex = -1;
+    }
 }
 
 //----------------------------------------------------- corners.

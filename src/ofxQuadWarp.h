@@ -9,7 +9,7 @@
 #include "ofMain.h"
 #include "ofxOpenCv.h"
 
-class ofxQuadWarp 
+class ofxQuadWarp : public ofBaseApp
 {
 public: 
     
@@ -27,6 +27,7 @@ public:
     void setTargetRect(ofRectangle rect);
     void setTargetPoints(vector<ofPoint> points);
     ofPoint* getTargetPoints();
+
     
     void enable();
     void disable();
@@ -54,14 +55,19 @@ public:
     void drawCorners();
     void drawQuadOutline();
     
+    void loadPoints();
+    void savePoints();
+    
 	ofPoint srcPoints[4];
 	ofPoint	dstPoints[4];
+    
     
 protected:
     
     void onMousePressed(ofMouseEventArgs& mouseArgs);
     void onMouseDragged(ofMouseEventArgs &mouseArgs);
     void onMouseReleased(ofMouseEventArgs& mouseArgs);
+        void keyPressed(ofKeyEventArgs& keyArgs);
     
     ofPoint position;
     

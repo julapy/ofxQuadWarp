@@ -60,7 +60,7 @@ public:
     
 	ofPoint srcPoints[4];
 	ofPoint	dstPoints[4];
-    
+        bool bShow;
     
 protected:
     
@@ -76,5 +76,5 @@ protected:
     int selectedCornerIndex;
     
     bool bEnabled;
-    bool bShow;
+
 };

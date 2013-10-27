@@ -40,6 +40,7 @@ void ofxQuadWarp::enable() {
     if(bEnabled) {
         return;
     }
+    bEnabled = true;
     ofAddListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
     ofAddListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
     ofAddListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
@@ -51,6 +52,7 @@ void ofxQuadWarp::disable() {
         return;
     }
     try {
+        bEnabled = false;
         ofRemoveListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
         ofRemoveListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
         ofRemoveListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
@@ -87,6 +89,7 @@ void ofxQuadWarp::setTargetRect(ofRectangle r) {
 	dstPoints[2].set(r.x + r.width, r.y + r.height);
 	dstPoints[3].set(r.x, r.y + r.height);
 }
+
 
 void ofxQuadWarp::setTargetPoints(vector<ofPoint> points) {
     int t = MIN(4, points.size());
@@ -328,6 +331,10 @@ void ofxQuadWarp::hide() {
 }
 
 void ofxQuadWarp::toggleShow() {
+    if(!bShow)
+        enable();
+    if(bShow)
+        disable();
     bShow = !bShow;
 }
 

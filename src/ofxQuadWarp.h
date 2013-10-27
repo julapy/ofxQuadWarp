@@ -60,8 +60,7 @@ public:
     
 	ofPoint srcPoints[4];
 	ofPoint	dstPoints[4];
-    
-        bool bShow;
+    bool bShow;
     
 protected:
     

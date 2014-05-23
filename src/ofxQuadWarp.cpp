@@ -290,6 +290,84 @@ void ofxQuadWarp::toggleShow() {
     bShow = !bShow;
 }
 
+//----------------------------------------------------- save / load.
+void ofxQuadWarp::save(string path) {
+    ofXml xml;
+    xml.addChild("quadwarp");
+    xml.setTo("quadwarp");
+
+    xml.addChild("src");
+    xml.setTo("src");
+    for(int i=0; i<4; i++) {
+        xml.addChild("point");
+        xml.setToChild(i);
+        xml.setAttribute("x", ofToString(srcPoints[i].x));
+        xml.setAttribute("y", ofToString(srcPoints[i].y));
+        xml.setToParent();
+    }
+    xml.setToParent();
+
+    xml.addChild("dst");
+    xml.setTo("dst");
+    for(int i=0; i<4; i++) {
+        xml.addChild("point");
+        xml.setToChild(i);
+        xml.setAttribute("x", ofToString(dstPoints[i].x));
+        xml.setAttribute("y", ofToString(dstPoints[i].y));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    
+    xml.setToParent();
+    xml.save(path);
+}
+
+void ofxQuadWarp::load(string path) {
+    ofXml xml;
+    bool bOk = xml.load(path);
+    if(bOk == false) {
+        return;
+    }
+    
+    bOk = xml.setTo("quadwarp");
+    if(bOk == false) {
+        return;
+    }
+    
+    bOk = xml.setTo("src");
+    if(bOk == false) {
+        return;
+    }
+    
+    for(int i=0; i<xml.getNumChildren(); i++) {
+        bOk = xml.setToChild(i);
+        if(bOk == false) {
+            continue;
+        }
+        srcPoints[i].x = ofToFloat(xml.getAttribute("x"));
+        srcPoints[i].y = ofToFloat(xml.getAttribute("y"));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    
+    bOk = xml.setTo("dst");
+    if(bOk == false) {
+        return;
+    }
+    
+    for(int i=0; i<xml.getNumChildren(); i++) {
+        bOk = xml.setToChild(i);
+        if(bOk == false) {
+            continue;
+        }
+        dstPoints[i].x = ofToFloat(xml.getAttribute("x"));
+        dstPoints[i].y = ofToFloat(xml.getAttribute("y"));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    xml.setToParent();
+}
+
 //----------------------------------------------------- show / hide.
 void ofxQuadWarp::draw() {
     if(!bShow) {

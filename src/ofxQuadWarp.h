@@ -49,6 +49,9 @@ public:
     void show();
     void hide();
     void toggleShow();
+    
+    void save(string path="quadwarp.xml");
+    void load(string path="quadwarp.xml");
 
     void draw();
     void drawCorners();

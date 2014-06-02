@@ -12,6 +12,7 @@ ofxQuadWarp::ofxQuadWarp() {
     
     bEnabled = false;
     bShow = false;
+    firstStart = true;
 }
 
 ofxQuadWarp::~ofxQuadWarp() {
@@ -44,6 +45,7 @@ void ofxQuadWarp::enable() {
     ofAddListener(ofEvents().mousePressed, this, &ofxQuadWarp::onMousePressed);
     ofAddListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
     ofAddListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
+    ofAddListener(ofEvents().mouseMoved, this, &ofxQuadWarp::onMouseMoved);
     ofAddListener(ofEvents().keyPressed, this, &ofxQuadWarp::keyPressed);
 }
 
@@ -102,6 +104,10 @@ ofPoint* ofxQuadWarp::getTargetPoints() {
     return &dstPoints[0];
 }
 
+void ofxQuadWarp::setAnchorSize(int grabSize){
+    anchorSize = grabSize;
+}
+
 //----------------------------------------------------- matrix.
 ofMatrix4x4 ofxQuadWarp::getMatrix() {
     return getMatrix(&srcPoints[0], &dstPoints[0]);
@@ -113,6 +119,10 @@ ofMatrix4x4 ofxQuadWarp::getMatrixInverse() {
 
 ofMatrix4x4 ofxQuadWarp::getMatrix(ofPoint * srcPoints, ofPoint * dstPoints) {
     
+    if (bShow || firstStart) {
+        firstStart = false; //make sure this runs at least once on load! otherwise you'd have an empty matrix
+        
+        
 	//we need our points as opencv points
 	//be nice to do this without opencv?
 	CvPoint2D32f cvsrc[4];
@@ -200,8 +210,16 @@ ofMatrix4x4 ofxQuadWarp::getMatrix(ofPoint * srcPoints, ofPoint * dstPoints) {
     cvReleaseMat(&translate);
     cvReleaseMat(&src_mat);
     cvReleaseMat(&dst_mat);
+        
+        computedMatrix = matrixTemp;
+        //this only updates when the drag points and debug are on screen/bShow is true - otherwise it would be wasting cpu
+        return computedMatrix;
+    }else{
+        //This returns the pre-computed matrix so it doesnt have to update every fram when you're not using it
+        return computedMatrix;
+    }
 
-    return matrixTemp;
+
 }
 
 void ofxQuadWarp::update() {
@@ -253,35 +271,86 @@ void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
     }
 }
 
+void ofxQuadWarp::onMouseMoved(ofMouseEventArgs& mouseArgs) {
+  
+    
+    
+    if(bShow){
+        ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+        currentMouseLoc = mousePoint;
+        mousePoint -= position;
+        
+        for(int i=0; i<4; i++) {
+            ofPoint & dstPoint = dstPoints[i];
+            if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
+                nearCornerIndex = i;
+                return;
+            }else{
+                nearCornerIndex= -1;
+            }
+        }
+    }
+
+    
+}
+
 void ofxQuadWarp::keyPressed(ofKeyEventArgs& keyArgs) {
    
+    float nudgeAmount = 0.3;
+    
+    
     if(bShow){
-        if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
-            return;
+        if(selectedCornerIndex > 0 || selectedCornerIndex <= 3) {
+            //OMG nudging - but only if there is a corner selected
+            switch (keyArgs.key) {
+                case OF_KEY_LEFT:
+                    dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x-nudgeAmount);
+                    break;
+                case OF_KEY_RIGHT:
+                    dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x+nudgeAmount);
+                    break;
+                case OF_KEY_UP:
+                    dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y-nudgeAmount);
+                    break;
+                case OF_KEY_DOWN:
+                    dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y+nudgeAmount);
+                    break;
+                default:
+                    break;
+            }
         }
         
+        //snap points to mouse location
         switch (keyArgs.key) {
-            case OF_KEY_LEFT:
-                dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x-1);
+            case '1':
+                if (bShow) {
+                    dstPoints[0] = currentMouseLoc;
+                    selectedCornerIndex=0;
+                }
                 break;
-            case OF_KEY_RIGHT:
-                dstPoints[selectedCornerIndex].x = (dstPoints[selectedCornerIndex].x+1);
+            case '2':
+                if (bShow) {
+                    dstPoints[1] = currentMouseLoc;
+                    selectedCornerIndex=1;
+                }
                 break;
-            case OF_KEY_UP:
-                dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y-1);
+            case '3':
+                if (bShow) {
+                    dstPoints[2] = currentMouseLoc;
+                    selectedCornerIndex=2;
+                }
                 break;
-            case OF_KEY_DOWN:
-                dstPoints[selectedCornerIndex].y = (dstPoints[selectedCornerIndex].y+1);
+            case '4':
+                if (bShow) {
+                    dstPoints[3] = currentMouseLoc;
+                    selectedCornerIndex=3;
+                }
                 break;
-           // case 'b':
-             //   cout<<"GOT IT"<<endl;
-             //   break;
-                
             default:
                 break;
+
         }
-        //dstPoints[selectedCornerIndex].set(dstPoints[selectedCornerIndex]+1);
-        //selectedCornerIndex = -1;
+
     }
 }
 
@@ -338,14 +407,97 @@ void ofxQuadWarp::toggleShow() {
     bShow = !bShow;
 }
 
+//----------------------------------------------------- save / load.
+void ofxQuadWarp::save(string path) {
+    ofXml xml;
+    xml.addChild("quadwarp");
+    xml.setTo("quadwarp");
+    
+    xml.addChild("src");
+    xml.setTo("src");
+    for(int i=0; i<4; i++) {
+        xml.addChild("point");
+        xml.setToChild(i);
+        xml.setAttribute("x", ofToString(srcPoints[i].x));
+        xml.setAttribute("y", ofToString(srcPoints[i].y));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    
+    xml.addChild("dst");
+    xml.setTo("dst");
+    for(int i=0; i<4; i++) {
+        xml.addChild("point");
+        xml.setToChild(i);
+        xml.setAttribute("x", ofToString(dstPoints[i].x));
+        xml.setAttribute("y", ofToString(dstPoints[i].y));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    
+    xml.setToParent();
+    xml.save(path);
+}
+
+void ofxQuadWarp::load(string path) {
+    ofXml xml;
+    bool bOk = xml.load(path);
+    if(bOk == false) {
+        return;
+    }
+    
+    bOk = xml.setTo("quadwarp");
+    if(bOk == false) {
+        return;
+    }
+    
+    bOk = xml.setTo("src");
+    if(bOk == false) {
+        return;
+    }
+    
+    for(int i=0; i<xml.getNumChildren(); i++) {
+        bOk = xml.setToChild(i);
+        if(bOk == false) {
+            continue;
+        }
+        srcPoints[i].x = ofToFloat(xml.getAttribute("x"));
+        srcPoints[i].y = ofToFloat(xml.getAttribute("y"));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    
+    bOk = xml.setTo("dst");
+    if(bOk == false) {
+        return;
+    }
+    
+    for(int i=0; i<xml.getNumChildren(); i++) {
+        bOk = xml.setToChild(i);
+        if(bOk == false) {
+            continue;
+        }
+        dstPoints[i].x = ofToFloat(xml.getAttribute("x"));
+        dstPoints[i].y = ofToFloat(xml.getAttribute("y"));
+        xml.setToParent();
+    }
+    xml.setToParent();
+    xml.setToParent();
+    
+    //after loading, compute the matrix
+    computedMatrix = getMatrix();
+}
+
 //----------------------------------------------------- show / hide.
 void ofxQuadWarp::draw() {
     if(!bShow) {
         return;
     }
+    ofPushStyle();
     
-    drawCorners();
     drawQuadOutline();
+    drawCorners();
+    ofPopStyle();
 }
 
 void ofxQuadWarp::drawCorners() {
@@ -354,6 +506,20 @@ void ofxQuadWarp::drawCorners() {
     }
 
 	for(int i=0; i<4; i++) {
+        if (i==nearCornerIndex) {
+            ofSetColor(255);
+            ofNoFill();
+
+            ofCircle(dstPoints[i].x + position.x - anchorSizeHalf*.325,
+                     dstPoints[i].y + position.y - anchorSizeHalf*.325,
+                     anchorSize*1.5);
+        }else if(i==selectedCornerIndex){
+            ofSetColor(255, 255, 0);
+        }else{
+            ofSetColor(255,0,255);
+        }
+        ofFill();
+
         ofRect(dstPoints[i].x + position.x - anchorSizeHalf, 
                dstPoints[i].y + position.y - anchorSizeHalf, 
                anchorSize, anchorSize);
@@ -365,6 +531,7 @@ void ofxQuadWarp::drawQuadOutline() {
         return;
     }
     
+    ofSetColor(255, 0, 255);
     for(int i=0; i<4; i++) {
         int j = (i+1) % 4;
         ofLine(dstPoints[i].x + position.x, 

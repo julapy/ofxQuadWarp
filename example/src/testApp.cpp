@@ -23,6 +23,7 @@ void testApp::setup()
     warper.setBottomLeftCornerPosition( ofPoint( x, y + h ) );      // this is position of the quad warp corners, centering the image on the screen.
     warper.setBottomRightCornerPosition( ofPoint( x + w, y + h ) ); // this is position of the quad warp corners, centering the image on the screen.
     warper.setup();
+    //warper.load(); //always load after setup!
 }
 
 //--------------------------------------------------------------
@@ -89,13 +90,19 @@ void testApp::draw()
     ofSetColor( ofColor :: white );
     ofDrawBitmapString( "to warp the image, drag the corners of the image.", 20, 30 );
     ofDrawBitmapString( "press 's' to toggle quad warp UI. this will also disable quad warp interaction.", 20, 50 );
+    ofDrawBitmapString( "Press/hold 1,2,3,4 to snap that point to the mouse", 20, 70 );
 }
 
 //--------------------------------------------------------------
 void testApp::keyPressed(int key)
 {
-    if( key == 's' )
-        warper.toggleShow();
+    if( key == 's' ) warper.toggleShow();
+    if (key =='l') {
+        warper.load();
+    }
+    if (key =='h') {
+        warper.save();
+    }
 }
 
 //--------------------------------------------------------------

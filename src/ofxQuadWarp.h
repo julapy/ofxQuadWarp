@@ -46,17 +46,18 @@ public:
     void setBottomRightCornerPosition(ofPoint p);
     void setBottomLeftCornerPosition(ofPoint p);
     bool isCornerSelected(int cornerIndex) { return selectedCornerIndex == cornerIndex; }
+    void setAnchorSize(int grabSize);
 
     void show();
     void hide();
     void toggleShow();
-
+    
+    void save(string path="quadwarp.xml");
+    void load(string path="quadwarp.xml");
+    
     void draw();
     void drawCorners();
     void drawQuadOutline();
-    
-    void loadPoints();
-    void savePoints();
     
 	ofPoint srcPoints[4];
 	ofPoint	dstPoints[4];
@@ -64,16 +65,23 @@ public:
     
 protected:
     
+    ofMatrix4x4 computedMatrix;
+    bool firstStart;
+    
     void onMousePressed(ofMouseEventArgs& mouseArgs);
     void onMouseDragged(ofMouseEventArgs &mouseArgs);
+    void onMouseMoved(ofMouseEventArgs &mouseArgs);
     void onMouseReleased(ofMouseEventArgs& mouseArgs);
     void keyPressed(ofKeyEventArgs& keyArgs);
+    
+    ofPoint currentMouseLoc;
     
     ofPoint position;
     
 	float anchorSize;
     float anchorSizeHalf;
     int selectedCornerIndex;
+        int nearCornerIndex;
     
     bool bEnabled;
 

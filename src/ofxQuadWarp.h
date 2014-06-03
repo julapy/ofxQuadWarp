@@ -54,13 +54,12 @@ public:
     
     void save(string path="quadwarp.xml");
     void load(string path="quadwarp.xml");
-    
     void draw();
     void drawCorners();
     void drawQuadOutline();
     
-	ofPoint srcPoints[4];
-	ofPoint	dstPoints[4];
+    ofPoint srcPoints[4];
+    ofPoint dstPoints[4];
     bool bShow;
     
 protected:

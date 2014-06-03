@@ -412,7 +412,6 @@ void ofxQuadWarp::save(string path) {
     ofXml xml;
     xml.addChild("quadwarp");
     xml.setTo("quadwarp");
-    
     xml.addChild("src");
     xml.setTo("src");
     for(int i=0; i<4; i++) {
@@ -423,7 +422,6 @@ void ofxQuadWarp::save(string path) {
         xml.setToParent();
     }
     xml.setToParent();
-    
     xml.addChild("dst");
     xml.setTo("dst");
     for(int i=0; i<4; i++) {

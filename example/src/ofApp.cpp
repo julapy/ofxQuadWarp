@@ -95,6 +95,7 @@ void ofApp::draw() {
     ofDrawBitmapString("to warp the image, drag the corners of the image.", 20, 30);
     ofDrawBitmapString("press 's' to toggle quad warp UI. this will also disable quad warp interaction.", 20, 50);
     ofDrawBitmapString("press & hold 1, 2, 3, 4 to snap that point to the mouse", 20, 70);
+    ofDrawBitmapString("when a corner is selected (red), use keyboard arrow keys to nudge the corner position.", 20, 90);
 }
 
 void ofApp::exit() {

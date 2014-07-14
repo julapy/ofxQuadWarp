@@ -11,7 +11,6 @@
 		1d5f3298c2fa073628012944b1efde88 /* ofxCvContourFinder.cpp in Sources */ = {isa = PBXBuildFile; fileRef = c76de5c29bdbd2caa1dd0021a7376220 /* ofxCvContourFinder.cpp */; };
 		250a95ba26587be85db0a353e6e1dea2 /* ofxCvColorImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = ce9c7160245b19131dae61282ee6cb53 /* ofxCvColorImage.cpp */; };
 		63020f16c7e8ded9801112417e67ad38 /* ofxCvImage.cpp in Sources */ = {isa = PBXBuildFile; fileRef = c6151136d101f857dae12722e3c42f4a /* ofxCvImage.cpp */; };
-		670E6690179FAD68003A3880 /* ofxMSAInteractiveObject.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 670E668E179FAD68003A3880 /* ofxMSAInteractiveObject.cpp */; };
 		670E6695179FAD86003A3880 /* ofxQuadWarp.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 670E6693179FAD86003A3880 /* ofxQuadWarp.cpp */; };
 		BBAB23CB13894F3D00AA2426 /* GLUT.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = BBAB23BE13894E4700AA2426 /* GLUT.framework */; };
 		E4328149138ABC9F0047C5CB /* openFrameworksDebug.a in Frameworks */ = {isa = PBXBuildFile; fileRef = E4328148138ABC890047C5CB /* openFrameworksDebug.a */; };
@@ -97,11 +96,6 @@
 		603f2267d449084a4187a04928d2d713 /* ofxCvBlob.h */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = ofxCvBlob.h; path = ../../ofxOpenCv/src/ofxCvBlob.h; sourceTree = SOURCE_ROOT; };
 		61339778c58d921474b5729e6d07c9b5 /* features2d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = features2d.hpp; path = ../../ofxOpenCv/libs/opencv/include/opencv2/features2d/features2d.hpp; sourceTree = SOURCE_ROOT; };
 		665780a3005496e3a4a0d9ef64d5602a /* compat.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = compat.hpp; path = ../../ofxOpenCv/libs/opencv/include/opencv2/legacy/compat.hpp; sourceTree = SOURCE_ROOT; };
-		670E668A179FAD68003A3880 /* changelog.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = changelog.txt; sourceTree = "<group>"; };
-		670E668B179FAD68003A3880 /* install.xml */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.xml; path = install.xml; sourceTree = "<group>"; };
-		670E668C179FAD68003A3880 /* LICENSE.txt */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text; path = LICENSE.txt; sourceTree = "<group>"; };
-		670E668E179FAD68003A3880 /* ofxMSAInteractiveObject.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxMSAInteractiveObject.cpp; sourceTree = "<group>"; };
-		670E668F179FAD68003A3880 /* ofxMSAInteractiveObject.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxMSAInteractiveObject.h; sourceTree = "<group>"; };
 		670E6693179FAD86003A3880 /* ofxQuadWarp.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = ofxQuadWarp.cpp; sourceTree = "<group>"; };
 		670E6694179FAD86003A3880 /* ofxQuadWarp.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = ofxQuadWarp.h; sourceTree = "<group>"; };
 		67af0e794fa186dd25454cc945233198 /* calib3d.hpp */ = {isa = PBXFileReference; explicitFileType = sourcecode.c.h; fileEncoding = 30; name = calib3d.hpp; path = ../../ofxOpenCv/libs/opencv/include/opencv2/calib3d/calib3d.hpp; sourceTree = SOURCE_ROOT; };
@@ -350,27 +344,6 @@
 			name = gpu;
 			sourceTree = "<group>";
 		};
-		670E6689179FAD68003A3880 /* ofxMSAInteractiveObject */ = {
-			isa = PBXGroup;
-			children = (
-				670E668A179FAD68003A3880 /* changelog.txt */,
-				670E668B179FAD68003A3880 /* install.xml */,
-				670E668C179FAD68003A3880 /* LICENSE.txt */,
-				670E668D179FAD68003A3880 /* src */,
-			);
-			name = ofxMSAInteractiveObject;
-			path = addons/ofxMSAInteractiveObject;
-			sourceTree = "<group>";
-		};
-		670E668D179FAD68003A3880 /* src */ = {
-			isa = PBXGroup;
-			children = (
-				670E668E179FAD68003A3880 /* ofxMSAInteractiveObject.cpp */,
-				670E668F179FAD68003A3880 /* ofxMSAInteractiveObject.h */,
-			);
-			path = src;
-			sourceTree = "<group>";
-		};
 		670E6691179FAD71003A3880 /* ofxQuadWarp */ = {
 			isa = PBXGroup;
 			children = (
@@ -439,7 +412,6 @@
 			isa = PBXGroup;
 			children = (
 				a0b90d3b0adb9c1716816714bf7f212b /* ofxOpenCv */,
-				670E6689179FAD68003A3880 /* ofxMSAInteractiveObject */,
 				670E6691179FAD71003A3880 /* ofxQuadWarp */,
 			);
 			name = addons;
@@ -713,7 +685,6 @@
 				e212c821d1064b92dd953a42edc08aa7 /* ofxCvHaarFinder.cpp in Sources */,
 				63020f16c7e8ded9801112417e67ad38 /* ofxCvImage.cpp in Sources */,
 				d3301f6a0b43bb293ed97c1d5d26c840 /* ofxCvShortImage.cpp in Sources */,
-				670E6690179FAD68003A3880 /* ofxMSAInteractiveObject.cpp in Sources */,
 				670E6695179FAD86003A3880 /* ofxQuadWarp.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

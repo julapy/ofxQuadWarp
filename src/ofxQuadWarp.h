@@ -9,7 +9,7 @@
 #include "ofMain.h"
 #include "ofxOpenCv.h"
 
-class ofxQuadWarp : public ofBaseApp
+class ofxQuadWarp 
 {
 public: 
     
@@ -27,10 +27,15 @@ public:
     void setTargetRect(ofRectangle rect);
     void setTargetPoints(vector<ofPoint> points);
     ofPoint* getTargetPoints();
-    void setMatrix(ofMatrix4x4 matrix);
     
-    void enable();
-    void disable();
+    OF_DEPRECATED_MSG("Use enableMouseControls() and enableKeyboardShortcuts() instead.", void enable());
+    OF_DEPRECATED_MSG("Use disableMouseControls() and disableKeyboardShortcuts() instead.", void disable());
+    
+    void enableMouseControls();
+    void disableMouseControls();
+    
+    void enableKeyboardShortcuts();
+    void disableKeyboardShortcuts();
     
     void update();
     void reset();
@@ -46,42 +51,41 @@ public:
     void setBottomRightCornerPosition(ofPoint p);
     void setBottomLeftCornerPosition(ofPoint p);
     bool isCornerSelected(int cornerIndex) { return selectedCornerIndex == cornerIndex; }
-    void setAnchorSize(int grabSize);
 
     void show();
     void hide();
     void toggleShow();
+    bool isShowing();
     
     void save(string path="quadwarp.xml");
     void load(string path="quadwarp.xml");
+    
     void draw();
-    void drawCorners();
     void drawQuadOutline();
+    void drawCorners();
+    void drawHighlightedCorner();
+    void drawSelectedCorner();
+    void drawCornerAt(const ofPoint & point);
     
     ofPoint srcPoints[4];
     ofPoint dstPoints[4];
-    bool bShow;
     
 protected:
-    
-    ofMatrix4x4 computedMatrix;
-    bool firstStart;
-    
-    void onMousePressed(ofMouseEventArgs& mouseArgs);
-    void onMouseDragged(ofMouseEventArgs &mouseArgs);
-    void onMouseMoved(ofMouseEventArgs &mouseArgs);
-    void onMouseReleased(ofMouseEventArgs& mouseArgs);
-    void keyPressed(ofKeyEventArgs& keyArgs);
-    
-    ofPoint currentMouseLoc;
+
+    void onMouseMoved(ofMouseEventArgs & mouseArgs);
+    void onMousePressed(ofMouseEventArgs & mouseArgs);
+    void onMouseDragged(ofMouseEventArgs & mouseArgs);
+    void onMouseReleased(ofMouseEventArgs & mouseArgs);
+    void keyPressed(ofKeyEventArgs & keyArgs);
     
     ofPoint position;
     
 	float anchorSize;
     float anchorSizeHalf;
     int selectedCornerIndex;
-        int nearCornerIndex;
+    int highlightCornerIndex;
     
-    bool bEnabled;
-
+    bool bMouseEnabled;
+    bool bKeyboardShortcuts;
+    bool bShow;
 };

@@ -504,10 +504,10 @@ void ofxQuadWarp::drawQuadOutline() {
     
     for(int i=0; i<4; i++) {
         int j = (i+1) % 4;
-        ofLine(dstPoints[i].x + position.x,
-               dstPoints[i].y + position.y,
-               dstPoints[j].x + position.x,
-               dstPoints[j].y + position.y);
+        ofDrawLine(dstPoints[i].x + position.x,
+                   dstPoints[i].y + position.y,
+                   dstPoints[j].x + position.x,
+                   dstPoints[j].y + position.y);
     }
 }
 
@@ -547,7 +547,7 @@ void ofxQuadWarp::drawSelectedCorner() {
 }
 
 void ofxQuadWarp::drawCornerAt(const ofPoint & point) {
-    ofRect(point.x + position.x - anchorSizeHalf,
-           point.y + position.y - anchorSizeHalf,
-           anchorSize, anchorSize);
+    ofDrawRectangle(point.x + position.x - anchorSizeHalf,
+                    point.y + position.y - anchorSizeHalf,
+                    anchorSize, anchorSize);
 }

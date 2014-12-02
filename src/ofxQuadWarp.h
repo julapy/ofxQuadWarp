@@ -21,11 +21,11 @@ public:
     void setPosition(float x, float y);
     void setAnchorSize(float value);
     
-    void setSourceRect(ofRectangle rect);
-    void setSourcePoints(vector<ofPoint> points);
+    void setSourceRect(const ofRectangle& rect);
+    void setSourcePoints(const vector<ofPoint>& points);
     ofPoint* getSourcePoints();
-    void setTargetRect(ofRectangle rect);
-    void setTargetPoints(vector<ofPoint> points);
+    void setTargetRect(const ofRectangle& rect);
+    void setTargetPoints(const vector<ofPoint>& points);
     ofPoint* getTargetPoints();
     
     OF_DEPRECATED_MSG("Use enableMouseControls() and enableKeyboardShortcuts() instead.", void enable());
@@ -40,16 +40,16 @@ public:
     void update();
     void reset();
     
-    ofMatrix4x4 getMatrix();
-    ofMatrix4x4 getMatrixInverse();
-    ofMatrix4x4 getMatrix(ofPoint * srcPoints, ofPoint * dstPoints);
+    ofMatrix4x4 getMatrix() const;
+    ofMatrix4x4 getMatrixInverse() const;
+    ofMatrix4x4 getMatrix(const ofPoint * srcPoints, const ofPoint * dstPoints) const;
     
-    void setCorners(vector<ofPoint> corners);
-    void setCorner(ofPoint p, int cornerIndex);
-    void setTopLeftCornerPosition(ofPoint p);
-    void setTopRightCornerPosition(ofPoint p);
-    void setBottomRightCornerPosition(ofPoint p);
-    void setBottomLeftCornerPosition(ofPoint p);
+    void setCorners(const vector<ofPoint>& corners);
+    void setCorner(const ofPoint& p, int cornerIndex);
+    void setTopLeftCornerPosition(const ofPoint& p);
+    void setTopRightCornerPosition(const ofPoint& p);
+    void setBottomRightCornerPosition(const ofPoint& p);
+    void setBottomLeftCornerPosition(const ofPoint& p);
     bool isCornerSelected(int cornerIndex) { return selectedCornerIndex == cornerIndex; }
 
     void show();
@@ -57,15 +57,15 @@ public:
     void toggleShow();
     bool isShowing();
     
-    void save(string path="quadwarp.xml");
-    void load(string path="quadwarp.xml");
+    void save(const string& path="quadwarp.xml");
+    void load(const string& path="quadwarp.xml");
     
     void draw();
     void drawQuadOutline();
     void drawCorners();
     void drawHighlightedCorner();
     void drawSelectedCorner();
-    void drawCornerAt(const ofPoint & point);
+    void drawCornerAt(const ofPoint& point);
     
     ofPoint srcPoints[4];
     ofPoint dstPoints[4];

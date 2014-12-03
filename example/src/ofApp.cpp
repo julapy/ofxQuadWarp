@@ -56,10 +56,10 @@ void ofApp::draw() {
     
     //======================== use the matrix to transform our fbo.
     
-    glPushMatrix();
-    glMultMatrixf(mat.getPtr());
+    ofPushMatrix();
+    ofMultMatrix(mat);
     fbo.draw(0, 0);
-    glPopMatrix();
+    ofPopMatrix();
     
     //======================== use the matrix to transform points.
 

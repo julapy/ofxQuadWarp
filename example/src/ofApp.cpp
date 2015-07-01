@@ -28,16 +28,20 @@ void ofApp::setup() {
 //--------------------------------------------------------------
 void ofApp::update()
 {
-    if(ofGetFrameNum() % 5 != 0) {
-        // only update every 5 frames.
-        return;
-    }
+//    if(ofGetFrameNum() % 5 != 0) {
+//        // only update every 5 frames.
+//        return;
+//    }
+//    
+//    for(int i=0; i<10; i++) {
+//        // randomise points over the image area.
+//        points[i].x = ofRandom(img.width);
+//        points[i].y = ofRandom(img.height);
+//    }
     
-    for(int i=0; i<10; i++) {
-        // randomise points over the image area.
-        points[i].x = ofRandom(img.width);
-        points[i].y = ofRandom(img.height);
-    }
+    fbo.begin();
+    img.draw(0, 0);
+    fbo.end();
 }
 
 //--------------------------------------------------------------
@@ -46,9 +50,7 @@ void ofApp::draw() {
     
     //======================== draw image into fbo.
     
-    fbo.begin();
-    img.draw(0, 0);
-    fbo.end();
+
     
     //======================== get our quad warp matrix.
     
@@ -63,17 +65,17 @@ void ofApp::draw() {
     
     //======================== use the matrix to transform points.
 
-    ofSetLineWidth(2);
-    ofSetColor(ofColor::cyan);
-    
-    for(int i=0; i<9; i++) {
-        int j = i + 1;
-        
-        ofVec3f p1 = mat.preMult(ofVec3f(points[i].x, points[i].y, 0));
-        ofVec3f p2 = mat.preMult(ofVec3f(points[j].x, points[j].y, 0));
-        
-        ofDrawLine(p1.x, p1.y, p2.x, p2.y);
-    }
+//    ofSetLineWidth(2);
+//    ofSetColor(ofColor::cyan);
+//    
+//    for(int i=0; i<9; i++) {
+//        int j = i + 1;
+//        
+//        ofVec3f p1 = mat.preMult(ofVec3f(points[i].x, points[i].y, 0));
+//        ofVec3f p2 = mat.preMult(ofVec3f(points[j].x, points[j].y, 0));
+//        
+//        ofLine(p1.x, p1.y, p2.x, p2.y);
+//    }
     
     //======================== draw quad warp ui.
     
@@ -91,11 +93,11 @@ void ofApp::draw() {
     
     //======================== info.
     
-    ofSetColor(ofColor::white);
-    ofDrawBitmapString("to warp the image, drag the corners of the image.", 20, 30);
-    ofDrawBitmapString("press 's' to toggle quad warp UI. this will also disable quad warp interaction.", 20, 50);
-    ofDrawBitmapString("press & hold 1, 2, 3, 4 to snap that point to the mouse", 20, 70);
-    ofDrawBitmapString("when a corner is selected (red), use keyboard arrow keys to nudge the corner position.", 20, 90);
+//    ofSetColor(ofColor::white);
+//    ofDrawBitmapString("to warp the image, drag the corners of the image.", 20, 30);
+//    ofDrawBitmapString("press 's' to toggle quad warp UI. this will also disable quad warp interaction.", 20, 50);
+//    ofDrawBitmapString("press & hold 1, 2, 3, 4 to snap that point to the mouse", 20, 70);
+//    ofDrawBitmapString("when a corner is selected (red), use keyboard arrow keys to nudge the corner position.", 20, 90);
 }
 
 void ofApp::exit() {

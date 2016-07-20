@@ -1,0 +1,30 @@
+{
+  "DVTSourceControlWorkspaceBlueprintPrimaryRemoteRepositoryKey" : "14B8AC792BB3E433FAB0B60E4B728B5F7967140B",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyRepositoryLocationsKey" : {
+
+  },
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyStatesKey" : {
+    "14B8AC792BB3E433FAB0B60E4B728B5F7967140B" : 0,
+    "2DE9C8846D9375EAACFABA8963120E8E7719BAF5" : 0
+  },
+  "DVTSourceControlWorkspaceBlueprintIdentifierKey" : "BDA1D4F1-A0CD-4291-9B03-EB3FAE692780",
+  "DVTSourceControlWorkspaceBlueprintWorkingCopyPathsKey" : {
+    "14B8AC792BB3E433FAB0B60E4B728B5F7967140B" : "ofxQuadWarp\/",
+    "2DE9C8846D9375EAACFABA8963120E8E7719BAF5" : ".."
+  },
+  "DVTSourceControlWorkspaceBlueprintNameKey" : "example",
+  "DVTSourceControlWorkspaceBlueprintVersion" : 204,
+  "DVTSourceControlWorkspaceBlueprintRelativePathToProjectKey" : "example\/example.xcodeproj",
+  "DVTSourceControlWorkspaceBlueprintRemoteRepositoriesKey" : [
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:bakercp\/ofxQuadWarp.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "14B8AC792BB3E433FAB0B60E4B728B5F7967140B"
+    },
+    {
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryURLKey" : "github.com:bakercp\/openFrameworks.git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositorySystemKey" : "com.apple.dt.Xcode.sourcecontrol.Git",
+      "DVTSourceControlWorkspaceBlueprintRemoteRepositoryIdentifierKey" : "2DE9C8846D9375EAACFABA8963120E8E7719BAF5"
+    }
+  ]
+}

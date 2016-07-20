@@ -1,7 +1,8 @@
 #include "ofMain.h"
 #include "ofApp.h"
 
-int main( ){
+int main()
+{
 	ofSetupOpenGL(900, 768, OF_WINDOW);
-	ofRunApp( new ofApp());
+    ofRunApp(std::make_shared<ofApp>());
 }

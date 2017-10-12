@@ -115,6 +115,10 @@ ofPoint* ofxQuadWarp::getSourcePoints() {
     return &srcPoints[0];
 }
 
+const ofPoint* ofxQuadWarp::getSourcePoints() const {
+    return &srcPoints[0];
+}
+
 void ofxQuadWarp::setTargetRect(const ofRectangle& r) {
 	dstPoints[0].set(r.x, r.y);
 	dstPoints[1].set(r.x + r.width, r.y);
@@ -130,6 +134,10 @@ void ofxQuadWarp::setTargetPoints(const vector<ofPoint>& points) {
 }
 
 ofPoint* ofxQuadWarp::getTargetPoints() {
+    return &dstPoints[0];
+}
+
+const ofPoint* ofxQuadWarp::getTargetPoints() const {
     return &dstPoints[0];
 }
 
@@ -405,12 +413,12 @@ void ofxQuadWarp::toggleShow() {
     bShow = !bShow;
 }
 
-bool ofxQuadWarp::isShowing() {
+bool ofxQuadWarp::isShowing() const {
     return bShow;
 }
 
 //----------------------------------------------------- save / load.
-void ofxQuadWarp::save(const string& path) {
+void ofxQuadWarp::save(const string& path) const {
     ofXml xml;
     xml.addChild("quadwarp");
     xml.setTo("quadwarp");
@@ -486,7 +494,7 @@ void ofxQuadWarp::load(const string& path) {
 }
 
 //----------------------------------------------------- show / hide.
-void ofxQuadWarp::draw() {
+void ofxQuadWarp::draw() const {
     if(bShow == false) {
         return;
     }
@@ -497,7 +505,7 @@ void ofxQuadWarp::draw() {
     drawSelectedCorner();
 }
 
-void ofxQuadWarp::drawQuadOutline() {
+void ofxQuadWarp::drawQuadOutline() const {
     if(bShow == false) {
         return;
     }
@@ -511,18 +519,18 @@ void ofxQuadWarp::drawQuadOutline() {
     }
 }
 
-void ofxQuadWarp::drawCorners() {
+void ofxQuadWarp::drawCorners() const {
     if(bShow == false) {
         return;
     }
 
 	for(int i=0; i<4; i++) {
-        ofPoint & point = dstPoints[i];
+        const ofPoint & point = dstPoints[i];
         drawCornerAt(point);
 	}
 }
 
-void ofxQuadWarp::drawHighlightedCorner() {
+void ofxQuadWarp::drawHighlightedCorner() const {
     if(bShow == false) {
         return;
     }
@@ -530,11 +538,11 @@ void ofxQuadWarp::drawHighlightedCorner() {
         return;
     }
 
-    ofPoint & point = dstPoints[highlightCornerIndex];
+    const ofPoint & point = dstPoints[highlightCornerIndex];
     drawCornerAt(point);
 }
 
-void ofxQuadWarp::drawSelectedCorner() {
+void ofxQuadWarp::drawSelectedCorner() const {
     if(bShow == false) {
         return;
     }
@@ -542,11 +550,11 @@ void ofxQuadWarp::drawSelectedCorner() {
         return;
     }
     
-    ofPoint & point = dstPoints[selectedCornerIndex];
+    const ofPoint & point = dstPoints[selectedCornerIndex];
     drawCornerAt(point);
 }
 
-void ofxQuadWarp::drawCornerAt(const ofPoint & point) {
+void ofxQuadWarp::drawCornerAt(const ofPoint & point) const {
     ofDrawRectangle(point.x + position.x - anchorSizeHalf,
                     point.y + position.y - anchorSizeHalf,
                     anchorSize, anchorSize);

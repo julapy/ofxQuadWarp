@@ -409,13 +409,13 @@ void ofxQuadWarp::save(const string& path) {
     xml.appendChild("quadwarp");
     ofXml& src = xml.getChild("quadwarp").appendChild("src");
     
-	for (int i = 0; i < 4; i++) {
+    for (int i = 0; i < 4; i++) {
         auto& t = src.appendChild("point");
         t.setAttribute("x", ofToString(srcPoints[i].x));
         t.setAttribute("y", ofToString(srcPoints[i].y));
-	}
+    }
 	
-	ofXml& dst = xml.getChild("quadwarp").appendChild("dst");
+    ofXml& dst = xml.getChild("quadwarp").appendChild("dst");
     for (int i = 0; i < 4; i++) {
         auto& t = dst.appendChild("point");
         t.setAttribute("x", ofToString(dstPoints[i].x));
@@ -435,7 +435,7 @@ void ofxQuadWarp::load(const string& path) {
         srcPoints[i].x = it->getAttribute("x").getFloatValue();
         srcPoints[i].y = it->getAttribute("y").getFloatValue();
         i++;
-	}
+    }
     
     ofXml& dst = xml.getChild("quadwarp").getChild("dst");
     i = 0;
@@ -443,7 +443,7 @@ void ofxQuadWarp::load(const string& path) {
         dstPoints[i].x = it->getAttribute("x").getFloatValue();
         dstPoints[i].y = it->getAttribute("y").getFloatValue();
         i++;
-	}
+    }
 }
 
 //----------------------------------------------------- show / hide.

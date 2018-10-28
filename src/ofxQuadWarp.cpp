@@ -4,6 +4,7 @@
 //
 
 #include "ofxQuadWarp.h"
+#include "opencv2/calib3d.hpp"
 
 ofxQuadWarp::ofxQuadWarp() {
     anchorSize = 10;
@@ -407,17 +408,17 @@ bool ofxQuadWarp::isShowing() {
 void ofxQuadWarp::save(const string& path) {
     ofXml xml;
     xml.appendChild("quadwarp");
-    ofXml& src = xml.getChild("quadwarp").appendChild("src");
     
+    ofXml src = xml.getChild("quadwarp").appendChild("src");
     for (int i = 0; i < 4; i++) {
-        auto& t = src.appendChild("point");
+        auto t = src.appendChild("point");
         t.setAttribute("x", ofToString(srcPoints[i].x));
         t.setAttribute("y", ofToString(srcPoints[i].y));
     }
 	
-    ofXml& dst = xml.getChild("quadwarp").appendChild("dst");
+    ofXml dst = xml.getChild("quadwarp").appendChild("dst");
     for (int i = 0; i < 4; i++) {
-        auto& t = dst.appendChild("point");
+        auto t = dst.appendChild("point");
         t.setAttribute("x", ofToString(dstPoints[i].x));
         t.setAttribute("y", ofToString(dstPoints[i].y));
     }
@@ -429,17 +430,17 @@ void ofxQuadWarp::load(const string& path) {
     ofXml xml;
     if (!xml.load(path)) return;
     
-    ofXml& src = xml.getChild("quadwarp").getChild("src");
+    auto src = xml.getChild("quadwarp").getChild("src");
     int i = 0;
-    for (auto& it = src.getChildren().begin(); it != src.getChildren().end(); it++) {
+    for (auto it = src.getChildren().begin(); it != src.getChildren().end(); it++) {
         srcPoints[i].x = it->getAttribute("x").getFloatValue();
         srcPoints[i].y = it->getAttribute("y").getFloatValue();
         i++;
     }
     
-    ofXml& dst = xml.getChild("quadwarp").getChild("dst");
+    auto dst = xml.getChild("quadwarp").getChild("dst");
     i = 0;
-    for (auto& it = dst.getChildren().begin(); it != dst.getChildren().end(); it++) {
+    for (auto it = dst.getChildren().begin(); it != dst.getChildren().end(); it++) {
         dstPoints[i].x = it->getAttribute("x").getFloatValue();
         dstPoints[i].y = it->getAttribute("y").getFloatValue();
         i++;

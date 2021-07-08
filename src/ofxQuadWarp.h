@@ -24,19 +24,23 @@ public:
     void setSourceRect(const ofRectangle& rect);
     void setSourcePoints(const vector<ofPoint>& points);
     ofPoint* getSourcePoints();
+    const ofPoint* getSourcePoints() const;
     void setTargetRect(const ofRectangle& rect);
     void setTargetPoints(const vector<ofPoint>& points);
     ofPoint* getTargetPoints();
-    
+    const ofPoint* getTargetPoints() const;
+
     OF_DEPRECATED_MSG("Use enableMouseControls() and enableKeyboardShortcuts() instead.", void enable());
     OF_DEPRECATED_MSG("Use disableMouseControls() and disableKeyboardShortcuts() instead.", void disable());
     
     void enableMouseControls();
     void disableMouseControls();
+    bool isMouseControlsEnabled() const { return bMouseEnabled; }
     
     void enableKeyboardShortcuts();
     void disableKeyboardShortcuts();
-    
+    bool isKeyboardShortcutsEnabled() const { return bKeyboardShortcuts; }
+
     void update();
     void reset();
     
@@ -50,22 +54,22 @@ public:
     void setTopRightCornerPosition(const ofPoint& p);
     void setBottomRightCornerPosition(const ofPoint& p);
     void setBottomLeftCornerPosition(const ofPoint& p);
-    bool isCornerSelected(int cornerIndex) { return selectedCornerIndex == cornerIndex; }
+    bool isCornerSelected(int cornerIndex) const { return selectedCornerIndex == cornerIndex; }
 
     void show();
     void hide();
     void toggleShow();
-    bool isShowing();
+    bool isShowing() const;
     
-    void save(const string& path="quadwarp.xml");
+    void save(const string& path="quadwarp.xml") const;
     void load(const string& path="quadwarp.xml");
     
-    void draw();
-    void drawQuadOutline();
-    void drawCorners();
-    void drawHighlightedCorner();
-    void drawSelectedCorner();
-    void drawCornerAt(const ofPoint& point);
+    void draw() const;
+    void drawQuadOutline() const;
+    void drawCorners() const;
+    void drawHighlightedCorner() const;
+    void drawSelectedCorner() const;
+    void drawCornerAt(const ofPoint& point) const;
     
     ofPoint srcPoints[4];
     ofPoint dstPoints[4];

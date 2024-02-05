@@ -5,6 +5,9 @@
 
 #include "ofxQuadWarp.h"
 
+#include "ofLog.h"
+#include "ofJson.h"
+
 ofxQuadWarp::ofxQuadWarp() {
     anchorSize = 10;
     anchorSizeHalf = anchorSize * 0.5;
@@ -14,6 +17,9 @@ ofxQuadWarp::ofxQuadWarp() {
     bMouseEnabled = false;
     bKeyboardShortcuts = false;
     bShow = false;
+    
+    srcPoints.resize(4);
+    dstPoints.resize(4);
 }
 
 ofxQuadWarp::~ofxQuadWarp() {
@@ -40,13 +46,6 @@ void ofxQuadWarp::setAnchorSize(float value) {
 }
 
 //----------------------------------------------------- enable / disable.
-void ofxQuadWarp::enable() {    // DEPRECATED.
-    enableMouseControls();
-}
-
-void ofxQuadWarp::disable() {   // DEPRECATED.
-    disableMouseControls();
-}
 
 void ofxQuadWarp::enableMouseControls() {
     if(bMouseEnabled == true) {
@@ -70,7 +69,7 @@ void ofxQuadWarp::disableMouseControls() {
         ofRemoveListener(ofEvents().mouseDragged, this, &ofxQuadWarp::onMouseDragged);
         ofRemoveListener(ofEvents().mouseReleased, this, &ofxQuadWarp::onMouseReleased);
     }
-    catch(Poco::SystemException) {
+    catch(std::exception) {
         return;
     }
 }
@@ -91,122 +90,78 @@ void ofxQuadWarp::disableKeyboardShortcuts() {
     try {
         ofRemoveListener(ofEvents().keyPressed, this, &ofxQuadWarp::keyPressed);
     }
-    catch(Poco::SystemException) {
+    catch(std::exception) {
         return;
     }
 }
 
 //----------------------------------------------------- source / target points.
-void ofxQuadWarp::setSourceRect(const ofRectangle& r) {
-	srcPoints[0].set(r.x, r.y);
-	srcPoints[1].set(r.x + r.width, r.y);
-	srcPoints[2].set(r.x + r.width, r.y + r.height);
-	srcPoints[3].set(r.x, r.y + r.height);
+void ofxQuadWarp::setSourceRect(const ofRectangle &r) {
+    srcPoints[0] = { r.x, r.y };
+    srcPoints[1] = { r.x + r.width, r.y };
+    srcPoints[2] = { r.x + r.width, r.y + r.height };
+    srcPoints[3] = { r.x, r.y + r.height };
 }
 
-void ofxQuadWarp::setSourcePoints(const vector<ofPoint>& points) {
-    int t = MIN(4, points.size());
-    for(int i=0; i<t; i++) {
-        srcPoints[i].set(points[i]);
+void ofxQuadWarp::setSourcePoints(const std::vector<glm::vec2> &points) {
+    if(points.size() < 4) {
+        ofLogWarning("ofxQuadWarp::setSourcePoints") << "num of given points is less than 4. num of given is: " << points.size();
+    }
+    
+    auto t = std::min<std::size_t>(4, points.size());
+    for(auto i = 0; i < t; i++) {
+        srcPoints[i] = points[i];
     }
 }
 
-ofPoint* ofxQuadWarp::getSourcePoints() {
-    return &srcPoints[0];
+std::vector<glm::vec2> &ofxQuadWarp::getSourcePoints() {
+    return srcPoints;
 }
 
-const ofPoint* ofxQuadWarp::getSourcePoints() const {
-    return &srcPoints[0];
+const std::vector<glm::vec2> &ofxQuadWarp::getSourcePoints() const {
+    return srcPoints;
 }
 
-void ofxQuadWarp::setTargetRect(const ofRectangle& r) {
-	dstPoints[0].set(r.x, r.y);
-	dstPoints[1].set(r.x + r.width, r.y);
-	dstPoints[2].set(r.x + r.width, r.y + r.height);
-	dstPoints[3].set(r.x, r.y + r.height);
+void ofxQuadWarp::setTargetRect(const ofRectangle &r) {
+    dstPoints[0] = { r.x, r.y };
+    dstPoints[1] = { r.x + r.width, r.y };
+    dstPoints[2] = { r.x + r.width, r.y + r.height };
+    dstPoints[3] = { r.x, r.y + r.height };
 }
 
-void ofxQuadWarp::setTargetPoints(const vector<ofPoint>& points) {
-    int t = MIN(4, points.size());
-    for(int i=0; i<t; i++) {
-        dstPoints[i].set(points[i]);
+void ofxQuadWarp::setTargetPoints(const std::vector<glm::vec2> &points) {
+    if(points.size() < 4) {
+        ofLogWarning("ofxQuadWarp::setTargetPoints") << "num of given points is less than 4. num of given is: " << points.size();
+    }
+    
+    std::size_t t = std::min<std::size_t>(4, points.size());
+    for(auto i = 0; i < t; i++) {
+        dstPoints[i] = { points[i].x, points[i].y };
     }
 }
 
-ofPoint* ofxQuadWarp::getTargetPoints() {
-    return &dstPoints[0];
+std::vector<glm::vec2> &ofxQuadWarp::getTargetPoints() {
+    return dstPoints;
 }
 
-const ofPoint* ofxQuadWarp::getTargetPoints() const {
-    return &dstPoints[0];
+const std::vector<glm::vec2> &ofxQuadWarp::getTargetPoints() const {
+    return dstPoints;
 }
 
 //----------------------------------------------------- matrix.
-ofMatrix4x4 ofxQuadWarp::getMatrix() const {
-    return getMatrix(&srcPoints[0], &dstPoints[0]);
+glm::mat4 ofxQuadWarp::getMatrix() const {
+    return getMatrix(srcPoints, dstPoints);
 }
 
-ofMatrix4x4 ofxQuadWarp::getMatrixInverse() const {
-    return getMatrix(&dstPoints[0], &srcPoints[0]);
+glm::mat4 ofxQuadWarp::getMatrixInverse() const {
+    return getMatrix(dstPoints, srcPoints);
 }
 
-ofMatrix4x4 ofxQuadWarp::getMatrix(const ofPoint* srcPoints, const ofPoint* dstPoints) const {
-    
-	//we need our points as opencv points
-	//be nice to do this without opencv?
-	CvPoint2D32f cvsrc[4];
-	CvPoint2D32f cvdst[4];	
-    
-	//we set the warp coordinates
-	//source coordinates as the dimensions of our window
-	cvsrc[0].x = srcPoints[0].x;
-	cvsrc[0].y = srcPoints[0].y;
-	cvsrc[1].x = srcPoints[1].x;
-	cvsrc[1].y = srcPoints[1].y;
-	cvsrc[2].x = srcPoints[2].x;
-	cvsrc[2].y = srcPoints[2].y;
-	cvsrc[3].x = srcPoints[3].x;
-	cvsrc[3].y = srcPoints[3].y;
-    
-	cvdst[0].x = dstPoints[0].x;
-	cvdst[0].y = dstPoints[0].y;
-	cvdst[1].x = dstPoints[1].x;
-	cvdst[1].y = dstPoints[1].y;
-	cvdst[2].x = dstPoints[2].x;
-	cvdst[2].y = dstPoints[2].y;
-	cvdst[3].x = dstPoints[3].x;
-	cvdst[3].y = dstPoints[3].y;
-    
-	//we create a matrix that will store the results
-	//from openCV - this is a 3x3 2D matrix that is
-	//row ordered
-	CvMat * translate = cvCreateMat(3,3,CV_32FC1);
-	
-	//this is the slightly easier - but supposidly less
-	//accurate warping method 
-	//cvWarpPerspectiveQMatrix(cvsrc, cvdst, translate); 
-    
-    
-	//for the more accurate method we need to create
-	//a couple of matrixes that just act as containers
-	//to store our points  - the nice thing with this 
-	//method is you can give it more than four points!
-	
-	CvMat* src_mat = cvCreateMat(4, 2, CV_32FC1);
-	CvMat* dst_mat = cvCreateMat(4, 2, CV_32FC1);
-    
-	//copy our points into the matrixes
-	cvSetData(src_mat, cvsrc, sizeof(CvPoint2D32f));
-	cvSetData(dst_mat, cvdst, sizeof(CvPoint2D32f));
-    
-	//figure out the warping!
-	//warning - older versions of openCV had a bug
-	//in this function.
-	cvFindHomography(src_mat, dst_mat, translate);
-    
-	//get the matrix as a list of floats
-	float *mat = translate->data.fl;
-    
+glm::mat4 ofxQuadWarp::getMatrix(const std::vector<glm::vec2> &srcPoints,
+                                 const std::vector<glm::vec2> &dstPoints) const
+{
+	auto &&homo = cv::findHomography((const std::vector<cv::Point2f> &)srcPoints,
+                                     (const std::vector<cv::Point2f> &)dstPoints);
     
 	//we need to copy these values
 	//from the 3x3 2D openCV matrix which is row ordered
@@ -223,24 +178,20 @@ ofMatrix4x4 ofxQuadWarp::getMatrix(const ofPoint* srcPoints, const ofPoint* dstP
 	//       [2][5][ ][9]
 	//       
     
-    ofMatrix4x4 matrixTemp;
-	matrixTemp.getPtr()[0]  = mat[0];
-	matrixTemp.getPtr()[4]  = mat[1];
-	matrixTemp.getPtr()[12] = mat[2];
+    glm::mat4 matrix;
+    matrix[0][0] = homo.at<double>(0, 0);
+	matrix[1][0] = homo.at<double>(0, 1);
+    matrix[3][0] = homo.at<double>(0, 2);
 	
-	matrixTemp.getPtr()[1]  = mat[3];
-	matrixTemp.getPtr()[5]  = mat[4];
-	matrixTemp.getPtr()[13] = mat[5];	
+    matrix[0][1] = homo.at<double>(1, 0);
+    matrix[1][1] = homo.at<double>(1, 1);
+    matrix[3][1] = homo.at<double>(1, 2);
 	
-	matrixTemp.getPtr()[3]  = mat[6];
-	matrixTemp.getPtr()[7]  = mat[7];
-	matrixTemp.getPtr()[15] = mat[8];
+    matrix[0][3] = homo.at<double>(2, 0);
+    matrix[1][3] = homo.at<double>(2, 1);
+    matrix[3][3] = homo.at<double>(2, 2);
     
-    cvReleaseMat(&translate);
-    cvReleaseMat(&src_mat);
-    cvReleaseMat(&dst_mat);
-
-    return matrixTemp;
+    return matrix;
 }
 
 void ofxQuadWarp::update() {
@@ -248,23 +199,23 @@ void ofxQuadWarp::update() {
 }
 
 void ofxQuadWarp::reset() {
-    dstPoints[0].set(srcPoints[0]);
-    dstPoints[1].set(srcPoints[1]);
-    dstPoints[2].set(srcPoints[2]);
-    dstPoints[3].set(srcPoints[3]);
+    dstPoints[0] = srcPoints[0];
+    dstPoints[1] = srcPoints[1];
+    dstPoints[2] = srcPoints[2];
+    dstPoints[3] = srcPoints[3];
 }
 
 //----------------------------------------------------- interaction.
-void ofxQuadWarp::onMouseMoved(ofMouseEventArgs& mouseArgs) {
+void ofxQuadWarp::onMouseMoved(ofMouseEventArgs &mouseArgs) {
     if(bShow == false) {
         return;
     }
     
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    glm::vec2 mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
 	for(int i=0; i<4; i++) {
-        ofPoint & dstPoint = dstPoints[i];
-		if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
+        auto &dstPoint = dstPoints[i];
+		if(glm::distance(mousePoint, dstPoint) <= anchorSizeHalf) {
             highlightCornerIndex = i;
             return;
 		}
@@ -272,17 +223,17 @@ void ofxQuadWarp::onMouseMoved(ofMouseEventArgs& mouseArgs) {
     highlightCornerIndex = -1;
 }
 
-void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
+void ofxQuadWarp::onMousePressed(ofMouseEventArgs &mouseArgs) {
     if(bShow == false) {
         return;
     }
     
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    glm::vec2 mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
 	for(int i=0; i<4; i++) {
-        ofPoint & dstPoint = dstPoints[i];
-		if(mousePoint.distance(dstPoint) <= anchorSizeHalf) {
-			dstPoint.set(mousePoint);
+        auto &dstPoint = dstPoints[i];
+		if(glm::distance(mousePoint, dstPoint) <= anchorSizeHalf) {
+			dstPoint = mousePoint;
             selectedCornerIndex = i;
             return;
 		}
@@ -290,7 +241,7 @@ void ofxQuadWarp::onMousePressed(ofMouseEventArgs& mouseArgs) {
     selectedCornerIndex = -1;
 }
 
-void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
+void ofxQuadWarp::onMouseDragged(ofMouseEventArgs &mouseArgs) {
     if(bShow == false) {
         return;
     }
@@ -298,12 +249,12 @@ void ofxQuadWarp::onMouseDragged(ofMouseEventArgs& mouseArgs) {
         return;
     }
     
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    glm::vec2 mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
-	dstPoints[selectedCornerIndex].set(mousePoint);
+	dstPoints[selectedCornerIndex] = mousePoint;
 }
 
-void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
+void ofxQuadWarp::onMouseReleased(ofMouseEventArgs &mouseArgs) {
     if(bShow == false) {
         return;
     }
@@ -311,12 +262,12 @@ void ofxQuadWarp::onMouseReleased(ofMouseEventArgs& mouseArgs) {
         return;
     }
     
-    ofPoint mousePoint(mouseArgs.x, mouseArgs.y);
+    glm::vec2 mousePoint(mouseArgs.x, mouseArgs.y);
     mousePoint -= position;
-	dstPoints[selectedCornerIndex].set(mousePoint);
+	dstPoints[selectedCornerIndex] = mousePoint;
 }
 
-void ofxQuadWarp::keyPressed(ofKeyEventArgs& keyArgs) {
+void ofxQuadWarp::keyPressed(ofKeyEventArgs &keyArgs) {
     if(bShow == false) {
         return;
     }
@@ -343,7 +294,7 @@ void ofxQuadWarp::keyPressed(ofKeyEventArgs& keyArgs) {
     }
     
     float nudgeAmount = 0.3;
-    ofPoint & selectedPoint = dstPoints[selectedCornerIndex];
+    auto &selectedPoint = dstPoints[selectedCornerIndex];
     
     switch (keyArgs.key) {
         case OF_KEY_LEFT:
@@ -364,48 +315,44 @@ void ofxQuadWarp::keyPressed(ofKeyEventArgs& keyArgs) {
 }
 
 //----------------------------------------------------- corners.
-void ofxQuadWarp::setCorners(const vector<ofPoint>& corners) {
-    vector<ofPoint> _corners = corners;
-    _corners.resize(4);
-    setTopLeftCornerPosition(_corners[0]);
-    setTopRightCornerPosition(_corners[1]);
-    setBottomRightCornerPosition(_corners[2]);
-    setBottomLeftCornerPosition(_corners[3]);
+void ofxQuadWarp::setCorners(const std::vector<glm::vec2> &corners) {
+    if(corners.size() < 4) {
+        ofLogWarning("ofxQuadWarp::setCorners") << "num of given corners is less than 4. num of given is: " << corners.size();
+    }
+    for(auto i = 0; i < std::min<std::size_t>(4, corners.size()); ++i) {
+        setCorner(corners[i], i);
+    }
 }
 
-void ofxQuadWarp::setCorner(const ofPoint& p, int cornerIndex) {
+void ofxQuadWarp::setCorner(const glm::vec2 &p, std::size_t cornerIndex) {
     cornerIndex = ofClamp(cornerIndex, 0, 3);
-    dstPoints[cornerIndex].set(p);
+    dstPoints[cornerIndex] = p;
 }
 
-void ofxQuadWarp::setTopLeftCornerPosition(const ofPoint& p) {
+void ofxQuadWarp::setTopLeftCornerPosition(const glm::vec2 &p) {
     setCorner(p, 0);
 }
 
-void ofxQuadWarp::setTopRightCornerPosition(const ofPoint& p) {
+void ofxQuadWarp::setTopRightCornerPosition(const glm::vec2 &p) {
     setCorner(p, 1);
 }
 
-void ofxQuadWarp::setBottomRightCornerPosition(const ofPoint& p) {
+void ofxQuadWarp::setBottomRightCornerPosition(const glm::vec2 &p) {
     setCorner(p, 2);
 }
 
-void ofxQuadWarp::setBottomLeftCornerPosition(const ofPoint& p) {
+void ofxQuadWarp::setBottomLeftCornerPosition(const glm::vec2 &p) {
     setCorner(p, 3);
 }
 
 //----------------------------------------------------- show / hide.
 void ofxQuadWarp::show() {
-    if(bShow) {
-        return;
-    }
+    if(isShowing()) return;
     toggleShow();
 }
 
 void ofxQuadWarp::hide() {
-    if(!bShow) {
-        return;
-    }
+    if(!isShowing()) return;
     toggleShow();
 }
 
@@ -418,79 +365,55 @@ bool ofxQuadWarp::isShowing() const {
 }
 
 //----------------------------------------------------- save / load.
-void ofxQuadWarp::save(const string& path) const {
-    ofXml xml;
-    xml.addChild("quadwarp");
-    xml.setTo("quadwarp");
-    xml.addChild("src");
-    xml.setTo("src");
-    for(int i=0; i<4; i++) {
-        xml.addChild("point");
-        xml.setToChild(i);
-        xml.setAttribute("x", ofToString(srcPoints[i].x));
-        xml.setAttribute("y", ofToString(srcPoints[i].y));
-        xml.setToParent();
+void ofxQuadWarp::save(const string &path) const {
+    auto &&json = ofLoadJson(path);
+
+    json["quadwarp"]["src"] = ofJson::array();
+    json["quadwarp"]["dst"] = ofJson::array();
+
+    for(auto &&p : srcPoints) {
+        ofJson &&j = ofJson::object();
+        j["x"] = p.x;
+        j["y"] = p.y;
+        json["quadwarp"]["src"].emplace_back(std::move(j));
     }
-    xml.setToParent();
-    xml.addChild("dst");
-    xml.setTo("dst");
-    for(int i=0; i<4; i++) {
-        xml.addChild("point");
-        xml.setToChild(i);
-        xml.setAttribute("x", ofToString(dstPoints[i].x));
-        xml.setAttribute("y", ofToString(dstPoints[i].y));
-        xml.setToParent();
+
+    for(auto &&p : dstPoints) {
+        ofJson &&j = ofJson::object();
+        j["x"] = p.x;
+        j["y"] = p.y;
+        json["quadwarp"]["dst"].emplace_back(std::move(j));
     }
-    xml.setToParent();
     
-    xml.setToParent();
-    xml.save(path);
+    ofSavePrettyJson(path,json);
 }
 
-void ofxQuadWarp::load(const string& path) {
-    ofXml xml;
-    bool bOk = xml.load(path);
-    if(bOk == false) {
+void ofxQuadWarp::load(const string &path) {
+    auto &&json = ofLoadJson(path);
+    if(json.is_null()) {
         return;
     }
-    
-    bOk = xml.setTo("quadwarp");
-    if(bOk == false) {
-        return;
-    }
-    
-    bOk = xml.setTo("src");
-    if(bOk == false) {
-        return;
-    }
-    
-    for(int i=0; i<xml.getNumChildren(); i++) {
-        bOk = xml.setToChild(i);
-        if(bOk == false) {
-            continue;
+
+    if(!json["quadwarp"].is_null()) {
+        auto &&j = json["quadwarp"];
+        if(!j["src"].is_null()) {
+            std::size_t i = 0;
+            for(auto &&p : j["src"]) {
+                srcPoints[i].x = p["x"].get<float>();
+                srcPoints[i].y = p["y"].get<float>();
+                ++i;
+            }
         }
-        srcPoints[i].x = ofToFloat(xml.getAttribute("x"));
-        srcPoints[i].y = ofToFloat(xml.getAttribute("y"));
-        xml.setToParent();
-    }
-    xml.setToParent();
-    
-    bOk = xml.setTo("dst");
-    if(bOk == false) {
-        return;
-    }
-    
-    for(int i=0; i<xml.getNumChildren(); i++) {
-        bOk = xml.setToChild(i);
-        if(bOk == false) {
-            continue;
+        
+        if(!j["dst"].is_null()) {
+            std::size_t i = 0;
+            for (auto &&p : j["dst"]) {
+                dstPoints[i].x = p["x"].get<float>();
+                dstPoints[i].y = p["y"].get<float>();
+                ++i;
+            }
         }
-        dstPoints[i].x = ofToFloat(xml.getAttribute("x"));
-        dstPoints[i].y = ofToFloat(xml.getAttribute("y"));
-        xml.setToParent();
     }
-    xml.setToParent();
-    xml.setToParent();
 }
 
 //----------------------------------------------------- show / hide.
@@ -510,8 +433,8 @@ void ofxQuadWarp::drawQuadOutline() const {
         return;
     }
     
-    for(int i=0; i<4; i++) {
-        int j = (i+1) % 4;
+    for(std::size_t i = 0; i < 4; i++) {
+        std::size_t j = (i + 1) % 4;
         ofDrawLine(dstPoints[i].x + position.x,
                    dstPoints[i].y + position.y,
                    dstPoints[j].x + position.x,
@@ -524,8 +447,8 @@ void ofxQuadWarp::drawCorners() const {
         return;
     }
 
-	for(int i=0; i<4; i++) {
-        const ofPoint & point = dstPoints[i];
+	for(std::size_t i = 0; i < 4; i++) {
+        const auto &point = dstPoints[i];
         drawCornerAt(point);
 	}
 }
@@ -534,11 +457,11 @@ void ofxQuadWarp::drawHighlightedCorner() const {
     if(bShow == false) {
         return;
     }
-    if(highlightCornerIndex < 0 || highlightCornerIndex > 3) {
+    if(highlightCornerIndex < 0 || 3 < highlightCornerIndex) {
         return;
     }
 
-    const ofPoint & point = dstPoints[highlightCornerIndex];
+    const auto &point = dstPoints[highlightCornerIndex];
     drawCornerAt(point);
 }
 
@@ -546,15 +469,15 @@ void ofxQuadWarp::drawSelectedCorner() const {
     if(bShow == false) {
         return;
     }
-    if(selectedCornerIndex < 0 || selectedCornerIndex > 3) {
+    if(selectedCornerIndex < 0 || 3 < selectedCornerIndex) {
         return;
     }
     
-    const ofPoint & point = dstPoints[selectedCornerIndex];
+    const auto &point = dstPoints[selectedCornerIndex];
     drawCornerAt(point);
 }
 
-void ofxQuadWarp::drawCornerAt(const ofPoint & point) const {
+void ofxQuadWarp::drawCornerAt(const glm::vec2 &point) const {
     ofDrawRectangle(point.x + position.x - anchorSizeHalf,
                     point.y + position.y - anchorSizeHalf,
                     anchorSize, anchorSize);
